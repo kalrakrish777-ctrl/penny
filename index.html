@@ -6,6 +6,7 @@
   <title>Penny - Financial Dashboard</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23534AB7'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='white'>P</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
 :root {
   --purple: #534AB7;
@@ -54,6 +55,253 @@ body {
 }
 
 #root { min-height: 100vh; }
+
+/* 3D Canvas Background */
+#three-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Animated Background Effects */
+.animated-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.floating-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  animation: float 8s ease-in-out infinite;
+  opacity: 0.4;
+}
+
+.floating-orb-1 {
+  width: 400px;
+  height: 400px;
+  background: linear-gradient(135deg, #534AB7 0%, #6B5BD7 100%);
+  top: -100px;
+  right: -100px;
+  animation-delay: 0s;
+}
+
+.floating-orb-2 {
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(135deg, #1D9E75 0%, #2ecc71 100%);
+  bottom: -50px;
+  left: -50px;
+  animation-delay: -3s;
+}
+
+.floating-orb-3 {
+  width: 250px;
+  height: 250px;
+  background: linear-gradient(135deg, #BA7517 0%, #f39c12 100%);
+  top: 50%;
+  left: 30%;
+  animation-delay: -5s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -30px) scale(1.05); }
+  50% { transform: translate(-20px, 20px) scale(0.95); }
+  75% { transform: translate(10px, 10px) scale(1.02); }
+}
+
+/* Particle Animation */
+.particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: particle-float 15s linear infinite;
+}
+
+@keyframes particle-float {
+  0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+}
+
+/* Animated Text */
+.animated-text {
+  background: linear-gradient(90deg, #534AB7, #6B5BD7, #1D9E75, #534AB7);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 5s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Glowing Button Effect */
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-glow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.btn-glow:hover::before {
+  left: 100%;
+}
+
+/* Shimmer Effect */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Magnetic Hover Effect */
+.magnetic-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.magnetic-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(83, 74, 183, 0.2);
+}
+
+/* Pulse Animation */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Glow Border Animation */
+.glow-border {
+  position: relative;
+}
+
+.glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, #534AB7, #1D9E75, #BA7517, #534AB7);
+  background-size: 400% 400%;
+  border-radius: inherit;
+  z-index: -1;
+  animation: glow-rotate 3s ease infinite;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.glow-border:hover::before {
+  opacity: 1;
+}
+
+@keyframes glow-rotate {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Ripple Effect */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: scale(0);
+  animation: ripple-anim 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes ripple-anim {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* Stagger Animation */
+@keyframes slide-up-fade {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stagger-item {
+  animation: slide-up-fade 0.5s ease forwards;
+  opacity: 0;
+}
+
+.stagger-item:nth-child(1) { animation-delay: 0.1s; }
+.stagger-item:nth-child(2) { animation-delay: 0.2s; }
+.stagger-item:nth-child(3) { animation-delay: 0.3s; }
+.stagger-item:nth-child(4) { animation-delay: 0.4s; }
+.stagger-item:nth-child(5) { animation-delay: 0.5s; }
+
+/* Neon Glow Text */
+.neon-text {
+  text-shadow: 0 0 5px #534AB7, 0 0 10px #534AB7, 0 0 20px #534AB7;
+  animation: neon-flicker 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes neon-flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    text-shadow: 0 0 5px #534AB7, 0 0 10px #534AB7, 0 0 20px #534AB7;
+  }
+  20%, 24%, 55% {
+    text-shadow: none;
+  }
+}
 
 /* Layout */
 .app-layout {
@@ -320,9 +568,31 @@ body {
   border-radius: var(--radius-lg);
   padding: 24px;
   transition: var(--transition);
+  position: relative;
+  overflow: hidden;
 }
 
-.stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--purple), var(--teal));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover::before {
+  transform: scaleX(1);
+}
+
+.stat-card:hover { 
+  box-shadow: var(--shadow-lg); 
+  transform: translateY(-4px) scale(1.02); 
+}
 
 .stat-header {
   display: flex;
@@ -391,15 +661,32 @@ body {
   justify-content: center;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   padding: 20px;
+  position: relative;
+  overflow: hidden;
 }
 
 .login-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
   border-radius: var(--radius-xl);
   padding: 48px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+  position: relative;
+  z-index: 1;
+  animation: card-appear 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes card-appear {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .login-header {
@@ -408,9 +695,23 @@ body {
 }
 
 .login-logo {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   margin: 0 auto 16px;
+  animation: logo-float 3s ease-in-out infinite;
+}
+
+@keyframes logo-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.login-title {
+  font-family: 'Lora', serif;
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
 }
 
 .login-title {
@@ -803,13 +1104,35 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(83,74,183,0.1), transparent);
+  transition: left 0.5s;
+}
+
+.quick-action-btn:hover::before {
+  left: 100%;
 }
 
 .quick-action-btn:hover {
   background: var(--purple-light);
   border-color: var(--purple);
-  transform: translateY(-2px);
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 10px 30px rgba(83,74,183,0.2);
+}
+
+.quick-action-btn:active {
+  transform: translateY(-2px) scale(1.02);
 }
 
 .quick-action-icon {
@@ -820,6 +1143,14 @@ body {
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
+  transition: all 0.3s ease;
+}
+
+.quick-action-btn:hover .quick-action-icon {
+  transform: scale(1.1) rotate(5deg);
+  background: var(--purple);
+  color: white;
+}
   justify-content: center;
 }
 
@@ -991,12 +1322,57 @@ body {
   cursor: pointer;
   transition: var(--transition);
   border: none;
+  position: relative;
+  overflow: hidden;
 }
 
-.btn-primary { background: var(--purple); color: white; }
-.btn-primary:hover { background: var(--purple-dark); box-shadow: var(--shadow-glow); }
-.btn-outline { background: transparent; color: var(--purple); border: 2px solid var(--purple); }
-.btn-outline:hover { background: var(--purple-light); }
+.btn-primary { 
+  background: var(--purple-gradient); 
+  color: white; 
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover { 
+  background: var(--purple-dark); 
+  box-shadow: 0 8px 25px rgba(83,74,183,0.4);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-primary:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-outline { 
+  background: transparent; 
+  color: var(--purple); 
+  border: 2px solid var(--purple); 
+  transition: all 0.3s ease;
+}
+
+.btn-outline:hover { 
+  background: var(--purple-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(83,74,183,0.2);
+}
+
 .btn-block { width: 100%; }
 
 /* Badge */
@@ -1493,6 +1869,104 @@ function Login({ onLogin }) {
   const [password, setPassword] = React.useState('');
   const [name, setName] = React.useState('');
   const [loading, setLoading] = React.useState(false);
+  const canvasRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!canvasRef.current) return;
+    
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current, alpha: true, antialias: true });
+    
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    
+    const geometry = new THREE.TorusGeometry(5, 1.5, 16, 100);
+    const material = new THREE.MeshBasicMaterial({ 
+      color: 0x534AB7, 
+      wireframe: true,
+      transparent: true,
+      opacity: 0.3
+    });
+    const torus = new THREE.Mesh(geometry, material);
+    scene.add(torus);
+    
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesCount = 500;
+    const posArray = new Float32Array(particlesCount * 3);
+    
+    for (let i = 0; i < particlesCount * 3; i++) {
+      posArray[i] = (Math.random() - 0.5) * 50;
+    }
+    
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 0.05,
+      color: 0x6B5BD7,
+      transparent: true,
+      opacity: 0.8
+    });
+    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particlesMesh);
+    
+    camera.position.z = 15;
+    
+    const geometry2 = new THREE.IcosahedronGeometry(3, 0);
+    const material2 = new THREE.MeshBasicMaterial({ 
+      color: 0x1D9E75, 
+      wireframe: true,
+      transparent: true,
+      opacity: 0.2
+    });
+    const icosahedron = new THREE.Mesh(geometry2, material2);
+    icosahedron.position.x = 8;
+    icosahedron.position.y = 5;
+    scene.add(icosahedron);
+    
+    let mouseX = 0;
+    let mouseY = 0;
+    
+    const handleMouseMove = (event) => {
+      mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    
+    const animate = () => {
+      requestAnimationFrame(animate);
+      
+      torus.rotation.x += 0.002;
+      torus.rotation.y += 0.003;
+      
+      particlesMesh.rotation.y += 0.0005;
+      
+      icosahedron.rotation.x += 0.001;
+      icosahedron.rotation.y += 0.002;
+      
+      camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
+      camera.position.y += (mouseY * 2 - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+      
+      renderer.render(scene, camera);
+    };
+    
+    animate();
+    
+    const handleResize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', handleResize);
+      renderer.dispose();
+    };
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -1511,9 +1985,20 @@ function Login({ onLogin }) {
 
   return (
     <div className="login-container">
-      <div className="login-card">
+      <canvas ref={canvasRef} id="three-canvas"></canvas>
+      <div className="animated-bg">
+        <div className="floating-orb floating-orb-1"></div>
+        <div className="floating-orb floating-orb-2"></div>
+        <div className="floating-orb floating-orb-3"></div>
+        <div className="particles">
+          {[...Array(20)].map((_, i) => (
+            <div key={i} className="particle" style={{ left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 15}s`, animationDuration: `${10 + Math.random() * 10}s` }}></div>
+          ))}
+        </div>
+      </div>
+      <div className="login-card magnetic-card glow-border">
         <div className="login-header">
-          <svg className="login-logo" viewBox="0 0 64 64" fill="none">
+          <svg className="login-logo" viewBox="0 0 64 64" fill="none" style={{ filter: 'drop-shadow(0 0 10px rgba(255,182,193,0.5))' }}>
             <ellipse cx="32" cy="36" rx="22" ry="19" fill="#FFB6C1"/>
             <ellipse cx="32" cy="36" rx="22" ry="19" stroke="#E87E9E" strokeWidth="3"/>
             <circle cx="32" cy="20" r="10" fill="#FFB6C1" stroke="#E87E9E" strokeWidth="3"/>
@@ -1527,35 +2012,35 @@ function Login({ onLogin }) {
             <path d="M16 46 Q10 50 10 42" stroke="#E87E9E" strokeWidth="3" fill="none" strokeLinecap="round"/>
             <rect x="26" cy="30" width="12" height="10" rx="2" fill="#E87E9E"/>
           </svg>
-          <h1 className="login-title">Penny</h1>
+          <h1 className="login-title animated-text">Penny</h1>
           <p className="login-subtitle">Your financial co-pilot for life</p>
         </div>
         
         <div className="login-tabs">
-          <button className={`login-tab ${isLogin ? 'active' : ''}`} onClick={() => setIsLogin(true)}>
+          <button className={`login-tab ${isLogin ? 'active' : ''} ripple`} onClick={() => setIsLogin(true)}>
             Sign In
           </button>
-          <button className={`login-tab ${!isLogin ? 'active' : ''}`} onClick={() => setIsLogin(false)}>
+          <button className={`login-tab ${!isLogin ? 'active' : ''} ripple`} onClick={() => setIsLogin(false)}>
             Sign Up
           </button>
         </div>
         
         <form className="login-form" onSubmit={handleSubmit}>
           {!isLogin && (
-            <div className="input-group">
+            <div className="input-group stagger-item">
               <label className="input-label">Full Name</label>
               <input type="text" className="input" placeholder="Jane Doe" value={name} onChange={e => setName(e.target.value)} required />
             </div>
           )}
-          <div className="input-group">
+          <div className="input-group stagger-item">
             <label className="input-label">Email</label>
             <input type="email" className="input" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
-          <div className="input-group">
+          <div className="input-group stagger-item">
             <label className="input-label">Password</label>
             <input type="password" className="input" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required />
           </div>
-          <button type="submit" className="login-btn" disabled={loading}>
+          <button type="submit" className="login-btn btn-glow shimmer" disabled={loading}>
             {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
           </button>
         </form>
