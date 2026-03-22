@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Penny - Financial Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23534AB7'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='white'>P</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --purple: #534AB7;
+  --purple-light: #EEEDFE;
+  --purple-dark: #3C3489;
+  --purple-gradient: linear-gradient(135deg, #534AB7 0%, #6B5BD7 100%);
+  --teal: #1D9E75;
+  --teal-light: #E1F5EE;
+  --amber: #BA7517;
+  --amber-light: #FAEEDA;
+  --red: #DC3545;
+  --red-light: #FDEAEC;
+  --green: #28A745;
+  --green-light: #E8F5E9;
+  --blue: #007BFF;
+  --blue-light: #E3F2FD;
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b6b6b;
+  --text-tertiary: #9c9a92;
+  --border: rgba(0,0,0,0.08);
+  --bg: #f5f4f7;
+  --bg-secondary: #ffffff;
+  --surface: #ffffff;
+  --sidebar-bg: #1a1a2e;
+  --sidebar-text: #a0a0b8;
+  --sidebar-active: #ffffff;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+  --shadow-glow: 0 0 20px rgba(83,74,183,0.15);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --transition: all 0.2s ease;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root { min-height: 100vh; }
+
+/* Layout */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 260px;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  padding: 24px 0;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 100;
+  transition: var(--transition);
+}
+
+.sidebar-logo {
+  padding: 0 24px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-logo-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.sidebar-logo-text {
+  font-family: 'Lora', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: white;
+}
+
+.sidebar-section {
+  margin-bottom: 24px;
+}
+
+.sidebar-section-title {
+  padding: 0 24px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  color: var(--sidebar-text);
+  cursor: pointer;
+  transition: var(--transition);
+  border-left: 3px solid transparent;
+}
+
+.sidebar-item:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--sidebar-active);
+}
+
+.sidebar-item.active {
+  background: rgba(255,255,255,0.1);
+  color: var(--sidebar-active);
+  border-left-color: var(--purple);
+}
+
+.sidebar-item-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+}
+
+.sidebar-item.active .sidebar-item-icon,
+.sidebar-item:hover .sidebar-item-icon { opacity: 1; }
+
+.sidebar-item-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.sidebar-item-badge {
+  margin-left: auto;
+  background: var(--purple);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.sidebar-user {
+  margin-top: auto;
+  padding: 20px 24px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-avatar {
+  width: 40px;
+  height: 40px;
+  background: var(--purple);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+}
+
+.sidebar-user-info { flex: 1; }
+.sidebar-user-name { font-size: 14px; font-weight: 600; color: white; }
+.sidebar-user-email { font-size: 12px; color: var(--text-tertiary); }
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  min-height: 100vh;
+}
+
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.header-left { display: flex; align-items: center; gap: 16px; }
+.header-title { font-size: 20px; font-weight: 600; }
+.header-subtitle { font-size: 13px; color: var(--text-secondary); }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-search {
+  position: relative;
+}
+
+.header-search input {
+  width: 280px;
+  padding: 10px 16px 10px 40px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  background: var(--bg);
+  transition: var(--transition);
+}
+
+.header-search input:focus {
+  outline: none;
+  border-color: var(--purple);
+  background: white;
+}
+
+.header-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+}
+
+.header-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: var(--bg);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: var(--transition);
+  position: relative;
+}
+
+.header-btn:hover {
+  background: var(--purple-light);
+  color: var(--purple);
+}
+
+.header-btn .notification-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  background: var(--red);
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+}
+
+.page-content {
+  padding: 32px;
+}
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.card-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.card-action {
+  font-size: 13px;
+  color: var(--purple);
+  cursor: pointer;
+}
+
+.card-action:hover { text-decoration: underline; }
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: var(--transition);
+}
+
+.stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon-purple { background: var(--purple-light); color: var(--purple); }
+.stat-icon-teal { background: var(--teal-light); color: var(--teal); }
+.stat-icon-amber { background: var(--amber-light); color: var(--amber); }
+.stat-icon-green { background: var(--green-light); color: var(--green); }
+
+.stat-trend {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-trend.up { background: var(--green-light); color: var(--green); }
+.stat-trend.down { background: var(--red-light); color: var(--red); }
+
+.stat-value {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.stat-chart {
+  margin-top: 16px;
+  height: 60px;
+}
+
+/* Grid Layout */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+/* Chart Styles */
+.chart-container {
+  height: 280px;
+  position: relative;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 24px;
+  margin-top: 16px;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* Pie Chart */
+.pie-chart-container {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.pie-chart {
+  width: 180px;
+  height: 180px;
+}
+
+.pie-legend {
+  flex: 1;
+}
+
+.pie-legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.pie-legend-item:last-child { border-bottom: none; }
+
+.pie-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  margin-right: 8px;
+}
+
+.pie-legend-label { font-size: 13px; flex: 1; }
+.pie-legend-value { font-weight: 600; font-size: 13px; }
+
+/* Transactions */
+.transaction-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.transaction-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.transaction-item:last-child { border-bottom: none; }
+
+.transaction-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.transaction-info { flex: 1; }
+.transaction-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.transaction-date { font-size: 12px; color: var(--text-tertiary); }
+.transaction-amount { font-weight: 600; font-family: 'Space Grotesk', monospace; }
+.transaction-amount.income { color: var(--green); }
+.transaction-amount.expense { color: var(--text-primary); }
+
+/* Goals Progress */
+.goal-item {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.goal-item:last-child { border-bottom: none; }
+
+.goal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.goal-name { font-size: 14px; font-weight: 500; }
+.goal-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: var(--purple-light);
+  color: var(--purple);
+}
+
+.goal-progress-bar {
+  height: 8px;
+  background: var(--bg);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.goal-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.goal-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.quick-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.quick-action-btn:hover {
+  background: var(--purple-light);
+  border-color: var(--purple);
+  transform: translateY(-2px);
+}
+
+.quick-action-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--purple-light);
+  color: var(--purple);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quick-action-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+/* Alerts */
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+}
+
+.alert-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.alert-icon.warning { background: var(--amber-light); color: var(--amber); }
+.alert-icon.info { background: var(--blue-light); color: var(--blue); }
+.alert-icon.success { background: var(--green-light); color: var(--green); }
+
+.alert-content { flex: 1; }
+.alert-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.alert-desc { font-size: 13px; color: var(--text-secondary); }
+
+/* Calendar */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.calendar-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.calendar-nav-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.calendar-nav-btn:hover { background: var(--purple-light); border-color: var(--purple); }
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-day-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-align: center;
+  padding: 8px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.calendar-day:hover { background: var(--purple-light); }
+.calendar-day.today { background: var(--purple); color: white; }
+.calendar-day.has-event::after {
+  content: '';
+  width: 4px;
+  height: 4px;
+  background: var(--teal);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 4px;
+}
+
+.calendar-day.other-month { color: var(--text-tertiary); }
+
+/* Progress Ring */
+.progress-ring-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-ring-text {
+  position: absolute;
+  text-align: center;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--bg);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-secondary);
+}
+
+.tab:hover { color: var(--text-primary); }
+.tab.active { background: white; color: var(--purple); box-shadow: var(--shadow-sm); }
+
+/* Input */
+.input-group { margin-bottom: 20px; }
+.input-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: white;
+  transition: var(--transition);
+}
+.input:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 3px var(--purple-light); }
+
+/* Button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+}
+
+.btn-primary { background: var(--purple); color: white; }
+.btn-primary:hover { background: var(--purple-dark); box-shadow: var(--shadow-glow); }
+.btn-outline { background: transparent; color: var(--purple); border: 2px solid var(--purple); }
+.btn-outline:hover { background: var(--purple-light); }
+.btn-block { width: 100%; }
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+}
+.badge-purple { background: var(--purple-light); color: var(--purple); }
+.badge-teal { background: var(--teal-light); color: var(--teal); }
+.badge-amber { background: var(--amber-light); color: var(--amber); }
+.badge-green { background: var(--green-light); color: var(--green); }
+.badge-red { background: var(--red-light); color: var(--red); }
+
+/* Table */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  border-bottom: 1px solid var(--border);
+}
+
+.table td {
+  padding: 16px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.table tr:hover { background: var(--bg); }
+
+/* Net Worth Card */
+.net-worth-card {
+  background: var(--purple-gradient);
+  color: white;
+  padding: 32px;
+  border-radius: var(--radius-lg);
+  margin-bottom: 24px;
+}
+
+.net-worth-label { font-size: 13px; opacity: 0.8; margin-bottom: 4px; }
+.net-worth-value {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.net-worth-change { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.net-worth-chart { margin-top: 24px; height: 80px; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--transition);
+}
+
+.modal-overlay.active { opacity: 1; visibility: visible; }
+
+.modal {
+  background: white;
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: scale(0.95);
+  transition: var(--transition);
+}
+
+.modal-overlay.active .modal { transform: scale(1); }
+
+.modal-header {
+  padding: 24px 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title { font-size: 18px; font-weight: 600; }
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-body { padding: 24px; }
+.modal-footer { padding: 0 24px 24px; display: flex; gap: 12px; }
+.modal-footer .btn { flex: 1; }
+
+/* Utility */
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.gap-6 { gap: 24px; }
+.grid { display: grid; }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.w-full { width: 100%; }
+.mt-2 { margin-top: 8px; }
+.mt-4 { margin-top: 16px; }
+.mt-6 { margin-top: 24px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-4 { margin-bottom: 16px; }
+.mb-6 { margin-bottom: 24px; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-sm { font-size: 13px; }
+.text-xs { font-size: 12px; }
+.font-bold { font-weight: 600; }
+.text-secondary { color: var(--text-secondary); }
+.text-purple { color: var(--purple); }
+.text-teal { color: var(--teal); }
+.text-green { color: var(--green); }
+.text-red { color: var(--red); }
+.hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+function Icon({ name, size = 20 }) {
+  const icons = {
+    dashboard: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>,
+    wallet: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>,
+    chart: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+    pie: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>,
+    target: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
+    calendar: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+    creditcard: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
+    settings: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>,
+    bell: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
+    search: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+    plus: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+    arrowup: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>,
+    arrowdown: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>,
+    chevronleft: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>,
+    chevronright: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>,
+    x: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+    check: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>,
+    trendingup: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
+    trendingdown: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>,
+    piggy: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h0"/></svg>,
+    home: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+    transfer: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>,
+    award: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>,
+    users: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+    file: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
+    zap: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+  };
+  return icons[name] || null;
+}
+
+function LineChart({ data, color = '#534AB7', height = 200 }) {
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const range = max - min || 1;
+  const padding = 20;
+  const width = 400;
+  
+  const points = data.map((val, i) => {
+    const x = padding + (i / (data.length - 1)) * (width - padding * 2);
+    const y = height - padding - ((val - min) / range) * (height - padding * 2);
+    return `${x},${y}`;
+  }).join(' ');
+  
+  const areaPoints = `${padding},${height - padding} ${points} ${width - padding},${height - padding}`;
+  
+  return (
+    <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={`gradient-${color.replace('#','')}`} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor={color} stopOpacity="0.3"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0"/>
+        </linearGradient>
+      </defs>
+      <polygon points={areaPoints} fill={`url(#gradient-${color.replace('#','')})`} />
+      <polyline points={points} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      {data.map((val, i) => {
+        const x = padding + (i / (data.length - 1)) * (width - padding * 2);
+        const y = height - padding - ((val - min) / range) * (height - padding * 2);
+        return <circle key={i} cx={x} cy={y} r="4" fill={color} />;
+      })}
+    </svg>
+  );
+}
+
+function BarChart({ data, color = '#534AB7', height = 200 }) {
+  const max = Math.max(...data);
+  const barWidth = 100 / data.length - 2;
+  
+  return (
+    <svg width="100%" height={height} viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet">
+      {data.map((val, i) => {
+        const barHeight = (val / max) * (height - 40);
+        const x = 20 + (i * 100 / data.length) + '%';
+        return (
+          <rect
+            key={i}
+            x={x}
+            y={height - 20 - barHeight}
+            width={`${barWidth}%`}
+            height={barHeight}
+            fill={color}
+            rx="4"
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+function DonutChart({ segments, size = 180 }) {
+  const total = segments.reduce((sum, s) => sum + s.value, 0);
+  let currentAngle = -90;
+  
+  const paths = segments.map((seg, i) => {
+    const angle = (seg.value / total) * 360;
+    const startAngle = currentAngle;
+    const endAngle = currentAngle + angle;
+    currentAngle = endAngle;
+    
+    const start = polarToCartesian(size/2, size/2, size/2 - 10, startAngle);
+    const end = polarToCartesian(size/2, size/2, size/2 - 10, endAngle);
+    const largeArcFlag = angle > 180 ? 1 : 0;
+    
+    const d = `M ${start.x} ${start.y} A ${size/2 - 10} ${size/2 - 10} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`;
+    
+    return { ...seg, d, color: seg.color || `hsl(${i * 360 / segments.length}, 70%, 50%)` };
+  });
+  
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      {paths.map((path, i) => (
+        <path key={i} d={path.d} fill="none" stroke={path.color} strokeWidth="20" />
+      ))}
+      <circle cx={size/2} cy={size/2} r={size/2 - 30} fill="white" />
+    </svg>
+  );
+}
+
+function polarToCartesian(cx, cy, r, angle) {
+  const rad = angle * Math.PI / 180;
+  return {
+    x: cx + r * Math.cos(rad),
+    y: cy + r * Math.sin(rad)
+  };
+}
+
+function ProgressRing({ progress, size = 120, strokeWidth = 10, color = '#534AB7' }) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (progress / 100) * circumference;
+  
+  return (
+    <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="#f0f0f0" strokeWidth={strokeWidth} />
+      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke={color} strokeWidth={strokeWidth} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.5s ease' }} />
+    </svg>
+  );
+}
+
+function Sidebar({ activeView, onNavigate }) {
+  const menuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+    { id: 'accounts', label: 'Accounts', icon: 'wallet' },
+    { id: 'transactions', label: 'Transactions', icon: 'transfer', badge: '12' },
+    { id: 'budgets', label: 'Budgets', icon: 'pie' },
+    { id: 'goals', label: 'Goals', icon: 'target' },
+    { id: 'calendar', label: 'Calendar', icon: 'calendar' },
+  ];
+  
+  const toolsItems = [
+    { id: 'reports', label: 'Reports', icon: 'chart' },
+    { id: 'insights', label: 'Insights', icon: 'zap' },
+    { id: 'achievements', label: 'Achievements', icon: 'award' },
+    { id: 'settings', label: 'Settings', icon: 'settings' },
+  ];
+  
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-logo">
+        <div className="sidebar-logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="20" cy="22" rx="14" ry="12" fill="#FFB6C1"/>
+            <ellipse cx="20" cy="22" rx="14" ry="12" stroke="#E87E9E" strokeWidth="2"/>
+            <circle cx="20" cy="12" r="6" fill="#FFB6C1" stroke="#E87E9E" strokeWidth="2"/>
+            <ellipse cx="15" cy="11" rx="2" ry="1.5" fill="#E87E9E"/>
+            <ellipse cx="25" cy="11" rx="2" ry="1.5" fill="#E87E9E"/>
+            <circle cx="18" cy="10" r="1" fill="#333"/>
+            <circle cx="22" cy="10" r="1" fill="#333"/>
+            <ellipse cx="20" cy="13" rx="2" ry="1" fill="#E87E9E"/>
+            <path d="M34 18 Q38 22 34 26" stroke="#E87E9E" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            <path d="M10 16 Q6 14 6 18" stroke="#E87E9E" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            <path d="M10 28 Q6 30 6 26" stroke="#E87E9E" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            <rect x="16" y="19" width="8" height="6" rx="1" fill="#E87E9E"/>
+            <circle cx="18" cy="25" r="0.8" fill="#333"/>
+            <circle cx="22" cy="25" r="0.8" fill="#333"/>
+            <circle cx="20" cy="27" r="0.8" fill="#333"/>
+          </svg>
+        </div>
+        <span className="sidebar-logo-text">Penny</span>
+      </div>
+      
+      <div className="sidebar-section">
+        <div className="sidebar-section-title">Main Menu</div>
+        {menuItems.map(item => (
+          <div key={item.id} className={`sidebar-item ${activeView === item.id ? 'active' : ''}`} onClick={() => onNavigate(item.id)}>
+            <span className="sidebar-item-icon"><Icon name={item.icon} /></span>
+            <span className="sidebar-item-label">{item.label}</span>
+            {item.badge && <span className="sidebar-item-badge">{item.badge}</span>}
+          </div>
+        ))}
+      </div>
+      
+      <div className="sidebar-section">
+        <div className="sidebar-section-title">Tools</div>
+        {toolsItems.map(item => (
+          <div key={item.id} className={`sidebar-item ${activeView === item.id ? 'active' : ''}`} onClick={() => onNavigate(item.id)}>
+            <span className="sidebar-item-icon"><Icon name={item.icon} /></span>
+            <span className="sidebar-item-label">{item.label}</span>
+          </div>
+        ))}
+      </div>
+      
+      <div className="sidebar-user">
+        <div className="sidebar-avatar">JD</div>
+        <div className="sidebar-user-info">
+          <div className="sidebar-user-name">Jane Doe</div>
+          <div className="sidebar-user-email">jane@example.com</div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function Dashboard() {
+  const stats = [
+    { label: 'Total Balance', value: '$24,563', change: '+12.5%', trend: 'up', icon: 'wallet' },
+    { label: 'Income (Monthly)', value: '$5,240', change: '+8.2%', trend: 'up', icon: 'trendingup' },
+    { label: 'Expenses (Monthly)', value: '$3,180', change: '-3.1%', trend: 'down', icon: 'trendingdown' },
+    { label: 'Savings Rate', value: '39.3%', change: '+5.2%', trend: 'up', icon: 'pie' },
+  ];
+  
+  const savingsData = [1200, 1450, 1320, 1580, 1720, 1890, 2100, 2350, 2280, 2456];
+  const spendingData = [2800, 2950, 3100, 3050, 3200, 3080, 3180, 3280, 3150, 3180];
+  const spendingByCategory = [
+    { label: 'Housing', value: 1200, color: '#534AB7' },
+    { label: 'Food & Dining', value: 580, color: '#1D9E75' },
+    { label: 'Transportation', value: 340, color: '#BA7517' },
+    { label: 'Entertainment', value: 280, color: '#DC3545' },
+    { label: 'Shopping', value: 420, color: '#28A745' },
+    { label: 'Other', value: 360, color: '#6c757d' },
+  ];
+  
+  const transactions = [
+    { name: 'Netflix Subscription', date: 'Today, 2:30 PM', amount: '-15.99', type: 'expense', icon: 'creditcard', category: 'Entertainment' },
+    { name: 'Salary Deposit', date: 'Yesterday, 9:00 AM', amount: '+3,500', type: 'income', icon: 'wallet', category: 'Income' },
+    { name: 'Whole Foods Market', date: 'Yesterday, 4:45 PM', amount: '-87.32', type: 'expense', icon: 'creditcard', category: 'Food' },
+    { name: 'Uber Ride', date: 'Mar 18, 11:20 PM', amount: '-24.50', type: 'expense', icon: 'creditcard', category: 'Transport' },
+    { name: 'Amazon Purchase', date: 'Mar 18, 3:15 PM', amount: '-156.00', type: 'expense', icon: 'creditcard', category: 'Shopping' },
+    { name: 'Electric Bill', date: 'Mar 17, 10:00 AM', amount: '-89.00', type: 'expense', icon: 'zap', category: 'Utilities' },
+  ];
+  
+  const goals = [
+    { name: 'Emergency Fund', current: 8500, target: 10000, color: '#534AB7' },
+    { name: 'Vacation Fund', current: 2400, target: 5000, color: '#1D9E75' },
+    { name: 'New Car Down Payment', current: 4200, target: 15000, color: '#BA7517' },
+  ];
+  
+  const alerts = [
+    { type: 'warning', title: 'Subscription Renewal', desc: 'Spotify annual plan renews in 3 days ($109.99)' },
+    { type: 'info', title: 'Bill Due Soon', desc: 'Credit card payment due in 5 days' },
+    { type: 'success', title: 'Goal Milestone', desc: 'You reached 85% of your Emergency Fund goal!' },
+  ];
+  
+  return (
+    <div>
+      <div className="net-worth-card">
+        <div className="net-worth-label">Total Net Worth</div>
+        <div className="net-worth-value">$24,563</div>
+        <div className="net-worth-change">
+          <span className="badge badge-green">+12.5%</span>
+          <span style={{ opacity: 0.8 }}>vs last month</span>
+        </div>
+        <div className="net-worth-chart">
+          <LineChart data={savingsData} color="#ffffff" height={80} />
+        </div>
+      </div>
+      
+      <div className="stats-grid">
+        {stats.map((stat, i) => (
+          <div key={i} className="stat-card">
+            <div className="stat-header">
+              <div className={`stat-icon stat-icon-${stat.icon === 'wallet' ? 'purple' : stat.icon === 'trendingup' ? 'teal' : stat.icon === 'trendingdown' ? 'amber' : 'green'}`}>
+                <Icon name={stat.icon} />
+              </div>
+              <span className={`stat-trend ${stat.trend}`}>
+                <Icon name={stat.trend === 'up' ? 'trendingup' : 'trendingdown'} size={12} />
+                {stat.change}
+              </span>
+            </div>
+            <div className="stat-value">{stat.value}</div>
+            <div className="stat-label">{stat.label}</div>
+          </div>
+        ))}
+      </div>
+      
+      <div className="dashboard-grid">
+        <div className="card">
+          <div className="card-header">
+            <div>
+              <div className="card-title">Savings vs Spending</div>
+              <div className="card-subtitle">Last 10 months</div>
+            </div>
+          </div>
+          <div className="chart-legend">
+            <div className="legend-item">
+              <div className="legend-dot" style={{ background: '#534AB7' }}></div>
+              <span>Savings</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-dot" style={{ background: '#DC3545' }}></div>
+              <span>Spending</span>
+            </div>
+          </div>
+          <LineChart data={savingsData} color="#534AB7" />
+        </div>
+        
+        <div className="card">
+          <div className="card-header">
+            <div className="card-title">Recent Transactions</div>
+            <span className="card-action">View All</span>
+          </div>
+          <div className="transaction-list">
+            {transactions.map((t, i) => (
+              <div key={i} className="transaction-item">
+                <div className="transaction-icon" style={{ background: t.type === 'income' ? 'var(--green-light)' : 'var(--bg)' }}>
+                  <Icon name={t.type === 'income' ? 'arrowup' : 'creditcard'} />
+                </div>
+                <div className="transaction-info">
+                  <div className="transaction-name">{t.name}</div>
+                  <div className="transaction-date">{t.date}</div>
+                </div>
+                <div className={`transaction-amount ${t.type}`}>{t.amount}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <div className="charts-grid">
+        <div className="card">
+          <div className="card-header">
+            <div className="card-title">Spending by Category</div>
+            <span className="card-subtitle">This month</span>
+          </div>
+          <div className="pie-chart-container">
+            <DonutChart segments={spendingByCategory} />
+            <div className="pie-legend">
+              {spendingByCategory.map((item, i) => (
+                <div key={i} className="pie-legend-item">
+                  <div className="pie-legend-color" style={{ background: item.color }}></div>
+                  <span className="pie-legend-label">{item.label}</span>
+                  <span className="pie-legend-value">${item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        <div className="card">
+          <div className="card-header">
+            <div className="card-title">Monthly Budget</div>
+            <span className="card-action">Manage</span>
+          </div>
+          <BarChart data={spendingData} color="#534AB7" />
+          <div className="mt-4">
+            <div className="flex justify-between mb-2">
+              <span className="text-sm">Budget Used</span>
+              <span className="font-bold">$3,180 / $4,000</span>
+            </div>
+            <div style={{ height: 8, background: 'var(--bg)', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ width: '79.5%', height: '100%', background: 'var(--purple)', borderRadius: 4 }}></div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="card">
+          <div className="card-header">
+            <div className="card-title">Savings Goals</div>
+            <span className="card-action">Add New</span>
+          </div>
+          {goals.map((goal, i) => {
+            const progress = Math.round((goal.current / goal.target) * 100);
+            return (
+              <div key={i} className="goal-item">
+                <div className="goal-header">
+                  <span className="goal-name">{goal.name}</span>
+                  <span className="goal-badge">{progress}%</span>
+                </div>
+                <div className="goal-progress-bar">
+                  <div className="goal-progress-fill" style={{ width: `${progress}%`, background: goal.color }}></div>
+                </div>
+                <div className="goal-stats">
+                  <span>${goal.current.toLocaleString()} saved</span>
+                  <span>${goal.target.toLocaleString()} goal</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        
+        <div className="card">
+          <div className="card-header">
+            <div className="card-title">Alerts & Reminders</div>
+          </div>
+          {alerts.map((alert, i) => (
+            <div key={i} className="alert-item">
+              <div className={`alert-icon ${alert.type}`}>
+                <Icon name={alert.type === 'success' ? 'check' : alert.type === 'warning' ? 'bell' : 'zap'} size={16} />
+              </div>
+              <div className="alert-content">
+                <div className="alert-title">{alert.title}</div>
+                <div className="alert-desc">{alert.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title">Quick Actions</div>
+        </div>
+        <div className="quick-actions">
+          <button className="quick-action-btn">
+            <div className="quick-action-icon"><Icon name="plus" /></div>
+            <span className="quick-action-label">Add Transaction</span>
+          </button>
+          <button className="quick-action-btn">
+            <div className="quick-action-icon"><Icon name="target" /></div>
+            <span className="quick-action-label">New Goal</span>
+          </button>
+          <button className="quick-action-btn">
+            <div className="quick-action-icon"><Icon name="transfer" /></div>
+            <span className="quick-action-label">Transfer</span>
+          </button>
+          <button className="quick-action-btn">
+            <div className="quick-action-icon"><Icon name="file" /></div>
+            <span className="quick-action-label">Export Report</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AccountsView() {
+  const accounts = [
+    { name: 'Checking Account', bank: 'Chase Bank', balance: 8456.23, type: 'checking', last4: '4582' },
+    { name: 'Savings Account', bank: 'Ally Bank', balance: 12890.00, type: 'savings', last4: '7891' },
+    { name: 'Credit Card', bank: 'Capital One', balance: -1234.56, type: 'credit', last4: '3456' },
+    { name: 'Investment Portfolio', bank: 'Fidelity', balance: 4567.89, type: 'investment', last4: '9012' },
+  ];
+  
+  const totalAssets = accounts.filter(a => a.balance > 0).reduce((sum, a) => sum + a.balance, 0);
+  const totalDebt = accounts.filter(a => a.balance < 0).reduce((sum, a) => sum + Math.abs(a.balance), 0);
+  
+  return (
+    <div>
+      <div className="card mb-6">
+        <div className="card-header">
+          <div>
+            <div className="card-title">Net Worth Summary</div>
+            <div className="card-subtitle">All accounts combined</div>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-6 mt-4">
+          <div className="text-center">
+            <div className="text-sm text-secondary">Total Assets</div>
+            <div className="font-bold text-green" style={{ fontSize: 24 }}>${totalAssets.toLocaleString()}</div>
+          </div>
+          <div className="text-center">
+            <div className="text-sm text-secondary">Total Debt</div>
+            <div className="font-bold text-red" style={{ fontSize: 24 }}>${totalDebt.toLocaleString()}</div>
+          </div>
+          <div className="text-center">
+            <div className="text-sm text-secondary">Net Worth</div>
+            <div className="font-bold text-purple" style={{ fontSize: 24 }}>${(totalAssets - totalDebt).toLocaleString()}</div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title">Your Accounts</div>
+          <button className="btn btn-primary btn-sm"><Icon name="plus" size={14} /> Add Account</button>
+        </div>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Account</th>
+              <th>Type</th>
+              <th>Balance</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {accounts.map((acc, i) => (
+              <tr key={i}>
+                <td>
+                  <div className="font-bold">{acc.name}</div>
+                  <div className="text-sm text-secondary">{acc.bank} **** {acc.last4}</div>
+                </td>
+                <td><span className={`badge ${acc.type === 'credit' ? 'badge-red' : acc.type === 'savings' ? 'badge-teal' : 'badge-purple'}`}>{acc.type}</span></td>
+                <td className="font-bold" style={{ color: acc.balance < 0 ? 'var(--red)' : 'var(--green)' }}>
+                  ${Math.abs(acc.balance).toLocaleString()}
+                </td>
+                <td className="text-right"><span className="card-action">View</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function GoalsView() {
+  const [goals, setGoals] = useState([
+    { id: 1, name: 'Emergency Fund', target: 10000, current: 8500, monthly: 500, deadline: 'Dec 2026', color: '#534AB7' },
+    { id: 2, name: 'Dream Vacation', target: 5000, current: 2400, monthly: 300, deadline: 'Aug 2026', color: '#1D9E75' },
+    { id: 3, name: 'New Car Down Payment', target: 15000, current: 4200, monthly: 800, deadline: 'Jun 2027', color: '#BA7517' },
+    { id: 4, name: 'Home Office Setup', target: 3000, current: 2100, monthly: 200, deadline: 'Apr 2026', color: '#28A745' },
+    { id: 5, name: 'Wedding Fund', target: 20000, current: 3500, monthly: 1000, deadline: 'Oct 2027', color: '#DC3545' },
+  ]);
+  
+  const totalTarget = goals.reduce((sum, g) => sum + g.target, 0);
+  const totalCurrent = goals.reduce((sum, g) => sum + g.current, 0);
+  
+  return (
+    <div>
+      <div className="card mb-6">
+        <div className="card-header">
+          <div>
+            <div className="card-title">Goals Overview</div>
+            <div className="card-subtitle">{goals.length} active goals</div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <div className="text-sm text-secondary">Total Progress</div>
+              <div className="font-bold" style={{ fontSize: 20 }}>${totalCurrent.toLocaleString()} / ${totalTarget.toLocaleString()}</div>
+            </div>
+            <ProgressRing progress={Math.round((totalCurrent / totalTarget) * 100)} size={80} color="#534AB7" />
+          </div>
+        </div>
+      </div>
+      
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title">All Goals</div>
+          <button className="btn btn-primary btn-sm"><Icon name="plus" size={14} /> New Goal</button>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          {goals.map((goal) => {
+            const progress = Math.round((goal.current / goal.target) * 100);
+            return (
+              <div key={goal.id} className="card" style={{ padding: 20, borderLeft: `4px solid ${goal.color}` }}>
+                <div className="flex justify-between items-center mb-4">
+                  <div>
+                    <div className="font-bold">{goal.name}</div>
+                    <div className="text-sm text-secondary">Target: ${goal.target.toLocaleString()}</div>
+                  </div>
+                  <span className="badge" style={{ background: goal.color + '20', color: goal.color }}>{progress}%</span>
+                </div>
+                <div style={{ height: 8, background: 'var(--bg)', borderRadius: 4, marginBottom: 12 }}>
+                  <div style={{ width: `${progress}%`, height: '100%', background: goal.color, borderRadius: 4 }}></div>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-secondary">${goal.current.toLocaleString()} saved</span>
+                  <span className="text-secondary">${goal.monthly}/mo needed</span>
+                </div>
+                <div className="mt-2 text-xs text-secondary">Target: {goal.deadline}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InsightsView() {
+  const insights = [
+    { type: 'positive', title: 'Great Savings Rate', desc: 'Your savings rate of 39% is above the recommended 20%. Keep it up!' },
+    { type: 'warning', title: 'Subscription Review', desc: 'You have 8 active subscriptions totaling $156/month. Consider canceling unused ones.' },
+    { type: 'positive', title: 'Low Debt Ratio', desc: 'Your debt-to-income ratio is healthy at 12%.' },
+    { type: 'info', title: 'Investment Opportunity', desc: 'With $12,000 in emergency fund, consider investing excess in index funds.' },
+    { type: 'positive', title: 'Spending on Track', desc: 'You are 12% under budget this month.' },
+  ];
+  
+  const monthlyData = [
+    { month: 'Jan', income: 5200, expenses: 3100 },
+    { month: 'Feb', income: 5200, expenses: 2950 },
+    { month: 'Mar', income: 5400, expenses: 3200 },
+    { month: 'Apr', income: 5300, expenses: 3080 },
+    { month: 'May', income: 5500, expenses: 3300 },
+    { month: 'Jun', income: 5200, expenses: 2800 },
+  ];
+  
+  const maxValue = Math.max(...monthlyData.flatMap(m => [m.income, m.expenses]));
+  
+  return (
+    <div>
+      <div className="card mb-6">
+        <div className="card-header">
+          <div className="card-title">Financial Health Score</div>
+        </div>
+        <div className="flex items-center gap-6">
+          <ProgressRing progress={87} size={140} strokeWidth={12} color="#28A745" />
+          <div>
+            <div className="text-sm text-secondary mb-2">Your Financial Health</div>
+            <div className="font-bold" style={{ fontSize: 32, color: 'var(--green)' }}>Good</div>
+            <div className="text-sm text-secondary mt-2">Based on savings rate, debt ratio, and spending patterns</div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="charts-grid">
+        <div className="card">
+          <div className="card-header">
+            <div className="card-title">Income vs Expenses</div>
+            <div className="card-subtitle">Last 6 months</div>
+          </div>
+          <div style={{ height: 250, position: 'relative' }}>
+            <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet">
+              {monthlyData.map((m, i) => {
+                const barWidth = 30;
+                const spacing = 400 / (monthlyData.length + 1);
+                const x = spacing * (i + 1) - barWidth;
+                const incomeHeight = (m.income / maxValue) * 160;
+                const expenseHeight = (m.expenses / maxValue) * 160;
+                
+                return (
+                  <g key={i}>
+                    <rect x={x - 18} y={180 - incomeHeight} width={barWidth} height={incomeHeight} fill="#1D9E75" rx="4" />
+                    <rect x={x} y={180 - expenseHeight} width={barWidth} height={expenseHeight} fill="#DC3545" rx="4" />
+                    <text x={x - barWidth/2} y={195} textAnchor="middle" fontSize="10" fill="#6b6b6b">{m.month}</text>
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+          <div className="chart-legend mt-4">
+            <div className="legend-item"><div className="legend-dot" style={{ background: '#1D9E75' }}></div><span>Income</span></div>
+            <div className="legend-item"><div className="legend-dot" style={{ background: '#DC3545' }}></div><span>Expenses</span></div>
+          </div>
+        </div>
+        
+        <div className="card">
+          <div className="card-header">
+            <div className="card-title">AI-Powered Insights</div>
+          </div>
+          {insights.map((insight, i) => (
+            <div key={i} className="alert-item">
+              <div className={`alert-icon ${insight.type === 'positive' ? 'success' : insight.type === 'warning' ? 'warning' : 'info'}`}>
+                <Icon name={insight.type === 'positive' ? 'check' : insight.type === 'warning' ? 'bell' : 'zap'} size={16} />
+              </div>
+              <div className="alert-content">
+                <div className="alert-title">{insight.title}</div>
+                <div className="alert-desc">{insight.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title">Predictions</div>
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="text-center p-4" style={{ background: 'var(--bg)', borderRadius: 12 }}>
+            <div className="text-sm text-secondary mb-2">Emergency Fund</div>
+            <div className="font-bold text-purple" style={{ fontSize: 20 }}>Aug 2026</div>
+            <div className="text-xs text-secondary mt-1">At current rate</div>
+          </div>
+          <div className="text-center p-4" style={{ background: 'var(--bg)', borderRadius: 12 }}>
+            <div className="text-sm text-secondary mb-2">Debt Free</div>
+            <div className="font-bold text-teal" style={{ fontSize: 20 }}>Dec 2025</div>
+            <div className="text-xs text-secondary mt-1">Credit card payoff</div>
+          </div>
+          <div className="text-center p-4" style={{ background: 'var(--bg)', borderRadius: 12 }}>
+            <div className="text-sm text-secondary mb-2">Net Worth Goal</div>
+            <div className="font-bold text-green" style={{ fontSize: 20 }}>$50,000</div>
+            <div className="text-xs text-secondary mt-1">By Dec 2028</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TransactionsView() {
+  const [filter, setFilter] = useState('all');
+  const transactions = [
+    { id: 1, name: 'Netflix', date: '2026-03-21', amount: -15.99, category: 'Entertainment', type: 'expense' },
+    { id: 2, name: 'Salary', date: '2026-03-20', amount: 3500, category: 'Income', type: 'income' },
+    { id: 3, name: 'Whole Foods', date: '2026-03-20', amount: -87.32, category: 'Food', type: 'expense' },
+    { id: 4, name: 'Uber', date: '2026-03-19', amount: -24.50, category: 'Transport', type: 'expense' },
+    { id: 5, name: 'Amazon', date: '2026-03-18', amount: -156.00, category: 'Shopping', type: 'expense' },
+    { id: 6, name: 'Electric Bill', date: '2026-03-17', amount: -89.00, category: 'Utilities', type: 'expense' },
+    { id: 7, name: 'Freelance', date: '2026-03-15', amount: 800, category: 'Income', type: 'income' },
+    { id: 8, name: 'Grocery Store', date: '2026-03-15', amount: -65.40, category: 'Food', type: 'expense' },
+    { id: 9, name: 'Gas Station', date: '2026-03-14', amount: -45.00, category: 'Transport', type: 'expense' },
+    { id: 10, name: 'Restaurant', date: '2026-03-13', amount: -52.80, category: 'Food', type: 'expense' },
+  ];
+  
+  const filtered = filter === 'all' ? transactions : transactions.filter(t => t.type === filter);
+  
+  return (
+    <div>
+      <div className="card mb-6">
+        <div className="card-header">
+          <div className="card-title">Monthly Summary</div>
+        </div>
+        <div className="grid grid-cols-3 gap-6">
+          <div className="text-center">
+            <div className="text-sm text-secondary">Total Income</div>
+            <div className="font-bold text-green" style={{ fontSize: 24 }}>$4,300.00</div>
+          </div>
+          <div className="text-center">
+            <div className="text-sm text-secondary">Total Expenses</div>
+            <div className="font-bold text-red" style={{ fontSize: 24 }}>$535.01</div>
+          </div>
+          <div className="text-center">
+            <div className="text-sm text-secondary">Net</div>
+            <div className="font-bold text-purple" style={{ fontSize: 24 }}>$3,764.99</div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="card">
+        <div className="card-header">
+          <div className="tabs" style={{ marginBottom: 0 }}>
+            <div className={`tab ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>All</div>
+            <div className={`tab ${filter === 'income' ? 'active' : ''}`} onClick={() => setFilter('income')}>Income</div>
+            <div className={`tab ${filter === 'expense' ? 'active' : ''}`} onClick={() => setFilter('expense')}>Expenses</div>
+          </div>
+          <button className="btn btn-primary btn-sm"><Icon name="plus" size={14} /> Add Transaction</button>
+        </div>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Transaction</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th style={{ textAlign: 'right' }}>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map(t => (
+              <tr key={t.id}>
+                <td>
+                  <div className="font-bold">{t.name}</div>
+                </td>
+                <td><span className="badge badge-purple">{t.category}</span></td>
+                <td className="text-secondary">{t.date}</td>
+                <td className="text-right font-bold" style={{ color: t.amount > 0 ? 'var(--green)' : 'var(--text-primary)' }}>
+                  {t.amount > 0 ? '+' : ''}${Math.abs(t.amount).toFixed(2)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function BudgetsView() {
+  const [budgets] = useState([
+    { category: 'Housing', budget: 1500, spent: 1200, color: '#534AB7' },
+    { category: 'Food & Dining', budget: 600, spent: 580, color: '#1D9E75' },
+    { category: 'Transportation', budget: 400, spent: 340, color: '#BA7517' },
+    { category: 'Entertainment', budget: 200, spent: 180, color: '#DC3545' },
+    { category: 'Shopping', budget: 300, spent: 250, color: '#28A745' },
+    { category: 'Utilities', budget: 250, spent: 180, color: '#6c757d' },
+    { category: 'Health', budget: 150, spent: 90, color: '#e83e8c' },
+    { category: 'Personal', budget: 200, spent: 120, color: '#17a2b8' },
+  ]);
+  
+  const totalBudget = budgets.reduce((sum, b) => sum + b.budget, 0);
+  const totalSpent = budgets.reduce((sum, b) => sum + b.spent, 0);
+  
+  return (
+    <div>
+      <div className="card mb-6">
+        <div className="card-header">
+          <div>
+            <div className="card-title">March 2026 Budget</div>
+            <div className="card-subtitle">${totalSpent} of ${totalBudget} spent</div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <div className="text-sm text-secondary">Remaining</div>
+              <div className="font-bold" style={{ fontSize: 20 }}>${totalBudget - totalSpent}</div>
+            </div>
+            <ProgressRing progress={Math.round((totalSpent / totalBudget) * 100)} size={70} color="#534AB7" />
+          </div>
+        </div>
+        <div style={{ height: 12, background: 'var(--bg)', borderRadius: 6, overflow: 'hidden', marginTop: 20 }}>
+          <div style={{ width: `${Math.min((totalSpent / totalBudget) * 100, 100)}%`, height: '100%', background: totalSpent > totalBudget ? 'var(--red)' : 'var(--purple)', borderRadius: 6 }}></div>
+        </div>
+      </div>
+      
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title">Budget Categories</div>
+          <button className="btn btn-outline btn-sm">Edit Budgets</button>
+        </div>
+        {budgets.map((budget, i) => {
+          const percent = Math.round((budget.spent / budget.budget) * 100);
+          const isOver = percent > 100;
+          return (
+            <div key={i} style={{ padding: '16px 0', borderBottom: i < budgets.length - 1 ? '1px solid var(--border)' : 'none' }}>
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-3">
+                  <div style={{ width: 12, height: 12, borderRadius: 3, background: budget.color }}></div>
+                  <span className="font-bold">{budget.category}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`font-bold ${isOver ? 'text-red' : ''}`}>${budget.spent}</span>
+                  <span className="text-secondary">/ ${budget.budget}</span>
+                  {isOver && <span className="badge badge-red">Over</span>}
+                </div>
+              </div>
+              <div style={{ height: 8, background: 'var(--bg)', borderRadius: 4 }}>
+                <div style={{ width: `${Math.min(percent, 100)}%`, height: '100%', background: isOver ? 'var(--red)' : budget.color, borderRadius: 4 }}></div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function CalendarView() {
+  const [currentDate, setCurrentDate] = useState(new Date(2026, 2, 21));
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const events = {
+    '2026-03-15': 'Rent Due',
+    '2026-03-20': 'Salary',
+    '2026-03-25': 'Credit Card Payment',
+    '2026-03-28': 'Subscription Renewals',
+  };
+  
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+  
+  const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
+  const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
+  
+  const calendarDays = [];
+  for (let i = firstDay - 1; i >= 0; i--) {
+    calendarDays.push({ day: daysInPrevMonth - i, otherMonth: true });
+  }
+  for (let i = 1; i <= daysInMonth; i++) {
+    calendarDays.push({ day: i, otherMonth: false });
+  }
+  const remaining = 42 - calendarDays.length;
+  for (let i = 1; i <= remaining; i++) {
+    calendarDays.push({ day: i, otherMonth: true });
+  }
+  
+  const monthName = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+  
+  return (
+    <div className="card">
+      <div className="card-header">
+        <div className="card-title">Financial Calendar</div>
+        <div className="calendar-nav">
+          <button className="calendar-nav-btn" onClick={prevMonth}><Icon name="chevronleft" /></button>
+          <span className="font-bold" style={{ minWidth: 140, textAlign: 'center' }}>{monthName}</span>
+          <button className="calendar-nav-btn" onClick={nextMonth}><Icon name="chevronright" /></button>
+        </div>
+      </div>
+      <div className="calendar-grid">
+        {days.map(day => <div key={day} className="calendar-day-header">{day}</div>)}
+        {calendarDays.map((d, i) => {
+          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`;
+          const hasEvent = events[dateStr];
+          const isToday = d.day === 21 && !d.otherMonth;
+          return (
+            <div key={i} className={`calendar-day ${d.otherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${hasEvent ? 'has-event' : ''}`}>
+              {d.day}
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-4">
+        <div className="card-title mb-2">Upcoming Events</div>
+        {Object.entries(events).map(([date, event]) => (
+          <div key={date} className="flex justify-between items-center" style={{ padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
+            <div>
+              <div className="font-bold">{event}</div>
+              <div className="text-sm text-secondary">{date}</div>
+            </div>
+            <span className="badge badge-purple">{event === 'Salary' ? 'Income' : 'Bill'}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AchievementsView() {
+  const achievements = [
+    { name: 'First Steps', desc: 'Completed onboarding', earned: true, date: 'Mar 1, 2026', icon: 'zap' },
+    { name: 'Goal Setter', desc: 'Created your first savings goal', earned: true, date: 'Mar 3, 2026', icon: 'target' },
+    { name: 'Saver', desc: 'Saved $1,000 total', earned: true, date: 'Mar 10, 2026', icon: 'piggy' },
+    { name: 'Budget Master', desc: 'Stayed under budget for 1 month', earned: true, date: 'Mar 15, 2026', icon: 'pie' },
+    { name: 'Scholar', desc: 'Read 5 financial articles', earned: false, icon: 'award' },
+    { name: 'Consistent', desc: '7-day login streak', earned: false, icon: 'award' },
+    { name: 'Wealth Builder', desc: 'Reach $50,000 net worth', earned: false, icon: 'award' },
+    { name: 'Debt Destroyer', desc: 'Pay off all debt', earned: false, icon: 'award' },
+  ];
+  
+  const earnedCount = achievements.filter(a => a.earned).length;
+  
+  return (
+    <div>
+      <div className="card mb-6">
+        <div className="card-header">
+          <div>
+            <div className="card-title">Achievement Progress</div>
+            <div className="card-subtitle">{earnedCount} of {achievements.length} unlocked</div>
+          </div>
+          <ProgressRing progress={Math.round((earnedCount / achievements.length) * 100)} size={70} color="#BA7517" />
+        </div>
+      </div>
+      
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title">All Achievements</div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          {achievements.map((ach, i) => (
+            <div key={i} style={{ padding: 20, background: ach.earned ? 'var(--purple-light)' : 'var(--bg)', borderRadius: 12, opacity: ach.earned ? 1 : 0.5 }}>
+              <div className="flex items-center gap-4">
+                <div style={{ width: 48, height: 48, background: ach.earned ? 'var(--purple)' : '#ccc', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                  <Icon name={ach.icon} size={24} />
+                </div>
+                <div>
+                  <div className="font-bold">{ach.name}</div>
+                  <div className="text-sm text-secondary">{ach.desc}</div>
+                  {ach.earned && <div className="text-xs text-purple mt-1">Earned {ach.date}</div>}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReportsView() {
+  const monthlyReport = [
+    { month: 'Jan', income: 5200, expenses: 3100, savings: 2100 },
+    { month: 'Feb', income: 5200, expenses: 2950, savings: 2250 },
+    { month: 'Mar', income: 5400, expenses: 3200, savings: 2200 },
+  ];
+  
+  return (
+    <div>
+      <div className="card mb-6">
+        <div className="card-header">
+          <div className="card-title">Financial Report</div>
+          <button className="btn btn-outline btn-sm"><Icon name="file" size={14} /> Export PDF</button>
+        </div>
+        <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="text-center p-4" style={{ background: 'var(--bg)', borderRadius: 12 }}>
+            <div className="text-sm text-secondary">Total Income</div>
+            <div className="font-bold text-green" style={{ fontSize: 24 }}>$15,800</div>
+          </div>
+          <div className="text-center p-4" style={{ background: 'var(--bg)', borderRadius: 12 }}>
+            <div className="text-sm text-secondary">Total Expenses</div>
+            <div className="font-bold text-red" style={{ fontSize: 24 }}>$9,250</div>
+          </div>
+          <div className="text-center p-4" style={{ background: 'var(--bg)', borderRadius: 12 }}>
+            <div className="text-sm text-secondary">Total Savings</div>
+            <div className="font-bold text-purple" style={{ fontSize: 24 }}>$6,550</div>
+          </div>
+          <div className="text-center p-4" style={{ background: 'var(--bg)', borderRadius: 12 }}>
+            <div className="text-sm text-secondary">Savings Rate</div>
+            <div className="font-bold text-teal" style={{ fontSize: 24 }}>41.5%</div>
+          </div>
+        </div>
+        
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th style={{ textAlign: 'right' }}>Income</th>
+              <th style={{ textAlign: 'right' }}>Expenses</th>
+              <th style={{ textAlign: 'right' }}>Savings</th>
+              <th style={{ textAlign: 'right' }}>Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            {monthlyReport.map((r, i) => (
+              <tr key={i}>
+                <td className="font-bold">{r.month} 2026</td>
+                <td style={{ textAlign: 'right', color: 'var(--green)' }}>${r.income.toLocaleString()}</td>
+                <td style={{ textAlign: 'right', color: 'var(--red)' }}>${r.expenses.toLocaleString()}</td>
+                <td style={{ textAlign: 'right', color: 'var(--purple)' }}>${r.savings.toLocaleString()}</td>
+                <td style={{ textAlign: 'right' }}><span className="badge badge-teal">{Math.round((r.savings / r.income) * 100)}%</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function SettingsView() {
+  return (
+    <div>
+      <div className="card mb-6">
+        <div className="card-header">
+          <div className="card-title">Profile Settings</div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="input-group" style={{ marginBottom: 0 }}>
+            <label className="input-label">First Name</label>
+            <input type="text" className="input" defaultValue="Jane" />
+          </div>
+          <div className="input-group" style={{ marginBottom: 0 }}>
+            <label className="input-label">Last Name</label>
+            <input type="text" className="input" defaultValue="Doe" />
+          </div>
+          <div className="input-group" style={{ marginBottom: 0 }}>
+            <label className="input-label">Email</label>
+            <input type="email" className="input" defaultValue="jane@example.com" />
+          </div>
+          <div className="input-group" style={{ marginBottom: 0 }}>
+            <label className="input-label">Currency</label>
+            <select className="input">
+              <option>USD ($)</option>
+              <option>EUR (EUR)</option>
+              <option>GBP (GBP)</option>
+            </select>
+          </div>
+        </div>
+        <button className="btn btn-primary mt-4">Save Changes</button>
+      </div>
+      
+      <div className="card mb-6">
+        <div className="card-header">
+          <div className="card-title">Preferences</div>
+        </div>
+        <div className="flex justify-between items-center" style={{ padding: '16px 0', borderBottom: '1px solid var(--border)' }}>
+          <div>
+            <div className="font-bold">Email Notifications</div>
+            <div className="text-sm text-secondary">Receive weekly financial summaries</div>
+          </div>
+          <div style={{ width: 50, height: 28, background: 'var(--purple)', borderRadius: 14, position: 'relative', cursor: 'pointer' }}>
+            <div style={{ width: 24, height: 24, background: 'white', borderRadius: 12, position: 'absolute', top: 2, right: 2 }}></div>
+          </div>
+        </div>
+        <div className="flex justify-between items-center" style={{ padding: '16px 0', borderBottom: '1px solid var(--border)' }}>
+          <div>
+            <div className="font-bold">Budget Alerts</div>
+            <div className="text-sm text-secondary">Get notified when nearing budget limits</div>
+          </div>
+          <div style={{ width: 50, height: 28, background: 'var(--purple)', borderRadius: 14, position: 'relative', cursor: 'pointer' }}>
+            <div style={{ width: 24, height: 24, background: 'white', borderRadius: 12, position: 'absolute', top: 2, right: 2 }}></div>
+          </div>
+        </div>
+        <div className="flex justify-between items-center" style={{ padding: '16px 0' }}>
+          <div>
+            <div className="font-bold">Dark Mode</div>
+            <div className="text-sm text-secondary">Use dark theme for the app</div>
+          </div>
+          <div style={{ width: 50, height: 28, background: '#ccc', borderRadius: 14, position: 'relative', cursor: 'pointer' }}>
+            <div style={{ width: 24, height: 24, background: 'white', borderRadius: 12, position: 'absolute', top: 2, left: 2 }}></div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title">Data Management</div>
+        </div>
+        <div className="flex gap-4">
+          <button className="btn btn-outline"><Icon name="file" size={14} /> Export Data</button>
+          <button className="btn btn-outline" style={{ borderColor: 'var(--red)', color: 'var(--red)' }}>Delete Account</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Header({ title }) {
+  return (
+    <header className="header">
+      <div className="header-left">
+        <div>
+          <div className="header-title">{title}</div>
+          <div className="header-subtitle">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</div>
+        </div>
+      </div>
+      <div className="header-right">
+        <div className="header-search">
+          <span className="header-search-icon"><Icon name="search" size={16} /></span>
+          <input type="text" placeholder="Search transactions, goals..." />
+        </div>
+        <button className="header-btn">
+          <Icon name="bell" size={18} />
+          <span className="notification-dot"></span>
+        </button>
+      </div>
+    </header>
+  );
+}
+
+function App() {
+  const [activeView, setActiveView] = useState('dashboard');
+  
+  const viewTitles = {
+    dashboard: 'Dashboard',
+    accounts: 'Accounts',
+    transactions: 'Transactions',
+    budgets: 'Budgets',
+    goals: 'Goals',
+    calendar: 'Calendar',
+    reports: 'Reports',
+    insights: 'Insights',
+    achievements: 'Achievements',
+    settings: 'Settings',
+  };
+  
+  const renderView = () => {
+    switch (activeView) {
+      case 'dashboard': return <Dashboard />;
+      case 'accounts': return <AccountsView />;
+      case 'transactions': return <TransactionsView />;
+      case 'budgets': return <BudgetsView />;
+      case 'goals': return <GoalsView />;
+      case 'calendar': return <CalendarView />;
+      case 'reports': return <ReportsView />;
+      case 'insights': return <InsightsView />;
+      case 'achievements': return <AchievementsView />;
+      case 'settings': return <SettingsView />;
+      default: return <Dashboard />;
+    }
+  };
+  
+  return (
+    <div className="app-layout">
+      <Sidebar activeView={activeView} onNavigate={setActiveView} />
+      <main className="main-content">
+        <Header title={viewTitles[activeView]} />
+        <div className="page-content">
+          {renderView()}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
