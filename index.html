@@ -5,43 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Penny - Financial Dashboard</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23534AB7'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='white'>P</text></svg>">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Lora:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
 :root {
-  --purple: #534AB7;
-  --purple-light: #EEEDFE;
-  --purple-dark: #3C3489;
-  --purple-gradient: linear-gradient(135deg, #534AB7 0%, #6B5BD7 100%);
-  --teal: #1D9E75;
-  --teal-light: #E1F5EE;
-  --amber: #BA7517;
-  --amber-light: #FAEEDA;
-  --red: #DC3545;
-  --red-light: #FDEAEC;
-  --green: #28A745;
-  --green-light: #E8F5E9;
-  --blue: #007BFF;
-  --blue-light: #E3F2FD;
-  --text-primary: #1a1a1a;
-  --text-secondary: #6b6b6b;
-  --text-tertiary: #9c9a92;
-  --border: rgba(0,0,0,0.08);
-  --bg: #f5f4f7;
-  --bg-secondary: #ffffff;
-  --surface: #ffffff;
-  --sidebar-bg: #1a1a2e;
-  --sidebar-text: #a0a0b8;
+  --purple: #6366f1;
+  --purple-light: #e0e7ff;
+  --purple-dark: #4f46e5;
+  --purple-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+  --teal: #14b8a6;
+  --teal-light: #ccfbf1;
+  --amber: #f59e0b;
+  --amber-light: #fef3c7;
+  --red: #ef4444;
+  --red-light: #fee2e2;
+  --green: #22c55e;
+  --green-light: #dcfce7;
+  --blue: #3b82f6;
+  --blue-light: #dbeafe;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  --border: rgba(148, 163, 184, 0.1);
+  --bg: #020617;
+  --bg-secondary: #0f172a;
+  --surface: rgba(30, 41, 59, 0.8);
+  --sidebar-bg: #020617;
+  --sidebar-text: #94a3b8;
   --sidebar-active: #ffffff;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
-  --shadow-glow: 0 0 20px rgba(83,74,183,0.15);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+  --shadow-xl: 0 25px 50px rgba(0,0,0,0.25);
+  --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.3);
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
-  --transition: all 0.2s ease;
+  --radius-2xl: 32px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -52,9 +54,16 @@ body {
   color: var(--text-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 #root { min-height: 100vh; }
+
+/* Modern Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--purple-dark); }
 
 /* 3D Canvas Background */
 #three-canvas {
@@ -67,362 +76,239 @@ body {
   pointer-events: none;
 }
 
-/* Animated Background Effects */
-.animated-bg {
+/* Animated Mesh Gradient Background */
+.mesh-bg {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
+  background: 
+    radial-gradient(at 40% 20%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(20, 184, 166, 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%);
+  animation: meshFloat 20s ease-in-out infinite;
 }
 
-.floating-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-  animation: float 8s ease-in-out infinite;
-  opacity: 0.4;
+@keyframes meshFloat {
+  0%, 100% { transform: scale(1) translate(0, 0); }
+  33% { transform: scale(1.05) translate(-2%, -2%); }
+  66% { transform: scale(1.02) translate(2%, 2%); }
 }
 
-.floating-orb-1 {
-  width: 400px;
-  height: 400px;
-  background: linear-gradient(135deg, #534AB7 0%, #6B5BD7 100%);
-  top: -100px;
-  right: -100px;
-  animation-delay: 0s;
-}
-
-.floating-orb-2 {
-  width: 300px;
-  height: 300px;
-  background: linear-gradient(135deg, #1D9E75 0%, #2ecc71 100%);
-  bottom: -50px;
-  left: -50px;
-  animation-delay: -3s;
-}
-
-.floating-orb-3 {
-  width: 250px;
-  height: 250px;
-  background: linear-gradient(135deg, #BA7517 0%, #f39c12 100%);
-  top: 50%;
-  left: 30%;
-  animation-delay: -5s;
-}
-
-@keyframes float {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(30px, -30px) scale(1.05); }
-  50% { transform: translate(-20px, 20px) scale(0.95); }
-  75% { transform: translate(10px, 10px) scale(1.02); }
-}
-
-/* Particle Animation */
-.particles {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.particle {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 50%;
-  animation: particle-float 15s linear infinite;
-}
-
-@keyframes particle-float {
-  0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
-}
-
-/* Animated Text */
-.animated-text {
-  background: linear-gradient(90deg, #534AB7, #6B5BD7, #1D9E75, #534AB7);
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradient-shift 5s ease infinite;
-}
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Glowing Button Effect */
-.btn-glow {
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-glow::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-  transition: left 0.5s;
-}
-
-.btn-glow:hover::before {
-  left: 100%;
-}
-
-/* Shimmer Effect */
-.shimmer {
-  position: relative;
-  overflow: hidden;
-}
-
-.shimmer::after {
-  content: '';
-  position: absolute;
+/* Floating Grid Lines */
+.grid-lines {
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  animation: shimmer 2s infinite;
+  z-index: 0;
+  background-image: 
+    linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridMove 20s linear infinite;
 }
 
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+@keyframes gridMove {
+  0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+  100% { transform: perspective(500px) rotateX(60deg) translateY(60px); }
 }
 
-/* Magnetic Hover Effect */
-.magnetic-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* Glass Morphism */
+.glass {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.magnetic-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(83, 74, 183, 0.2);
-}
-
-/* Pulse Animation */
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.8; }
-}
-
-.pulse {
-  animation: pulse 2s ease-in-out infinite;
-}
-
-/* Glow Border Animation */
-.glow-border {
-  position: relative;
-}
-
-.glow-border::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  background: linear-gradient(45deg, #534AB7, #1D9E75, #BA7517, #534AB7);
-  background-size: 400% 400%;
-  border-radius: inherit;
-  z-index: -1;
-  animation: glow-rotate 3s ease infinite;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.glow-border:hover::before {
-  opacity: 1;
-}
-
-@keyframes glow-rotate {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Ripple Effect */
-.ripple {
-  position: relative;
-  overflow: hidden;
-}
-
-.ripple-effect {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
-  transform: scale(0);
-  animation: ripple-anim 0.6s linear;
-  pointer-events: none;
-}
-
-@keyframes ripple-anim {
-  to { transform: scale(4); opacity: 0; }
-}
-
-/* Stagger Animation */
-@keyframes slide-up-fade {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.stagger-item {
-  animation: slide-up-fade 0.5s ease forwards;
-  opacity: 0;
-}
-
-.stagger-item:nth-child(1) { animation-delay: 0.1s; }
-.stagger-item:nth-child(2) { animation-delay: 0.2s; }
-.stagger-item:nth-child(3) { animation-delay: 0.3s; }
-.stagger-item:nth-child(4) { animation-delay: 0.4s; }
-.stagger-item:nth-child(5) { animation-delay: 0.5s; }
-
-/* Neon Glow Text */
-.neon-text {
-  text-shadow: 0 0 5px #534AB7, 0 0 10px #534AB7, 0 0 20px #534AB7;
-  animation: neon-flicker 1.5s ease-in-out infinite alternate;
-}
-
-@keyframes neon-flicker {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-    text-shadow: 0 0 5px #534AB7, 0 0 10px #534AB7, 0 0 20px #534AB7;
-  }
-  20%, 24%, 55% {
-    text-shadow: none;
-  }
+.glass-light {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Layout */
 .app-layout {
   display: flex;
   min-height: 100vh;
+  position: relative;
+  z-index: 1;
 }
 
+/* Sidebar */
 .sidebar {
-  width: 260px;
-  background: var(--sidebar-bg);
-  color: var(--sidebar-text);
-  padding: 24px 0;
+  width: 280px;
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.95) 0%, rgba(15, 23, 42, 0.9) 100%);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 32px 0;
   position: fixed;
   height: 100vh;
   overflow-y: auto;
   z-index: 100;
-  transition: var(--transition);
 }
 
 .sidebar-logo {
-  padding: 0 24px;
-  margin-bottom: 32px;
+  padding: 0 28px;
+  margin-bottom: 48px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .sidebar-logo-icon {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
+  background: var(--purple-gradient);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
+  animation: logoPulse 3s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4); }
+  50% { box-shadow: 0 8px 48px rgba(99, 102, 241, 0.6); }
 }
 
 .sidebar-logo-text {
   font-family: 'Lora', serif;
-  font-size: 22px;
-  font-weight: 600;
-  color: white;
+  font-size: 26px;
+  font-weight: 700;
+  background: var(--purple-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .sidebar-section {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .sidebar-section-title {
-  padding: 0 24px;
+  padding: 0 28px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
   color: var(--text-tertiary);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .sidebar-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 24px;
+  gap: 14px;
+  padding: 14px 28px;
   color: var(--sidebar-text);
   cursor: pointer;
   transition: var(--transition);
   border-left: 3px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.1), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.sidebar-item:hover::before {
+  transform: translateX(0);
 }
 
 .sidebar-item:hover {
-  background: rgba(255,255,255,0.05);
+  background: rgba(99, 102, 241, 0.1);
   color: var(--sidebar-active);
 }
 
 .sidebar-item.active {
-  background: rgba(255,255,255,0.1);
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.2), transparent);
   color: var(--sidebar-active);
   border-left-color: var(--purple);
 }
 
+.sidebar-item.active::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: var(--purple);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--purple);
+}
+
 .sidebar-item-icon {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.7;
+  transition: transform 0.3s ease;
 }
 
-.sidebar-item.active .sidebar-item-icon,
-.sidebar-item:hover .sidebar-item-icon { opacity: 1; }
+.sidebar-item:hover .sidebar-item-icon {
+  transform: scale(1.1);
+}
 
 .sidebar-item-label {
   font-size: 14px;
   font-weight: 500;
+  position: relative;
+  z-index: 1;
 }
 
 .sidebar-item-badge {
   margin-left: auto;
-  background: var(--purple);
+  background: var(--purple-gradient);
   color: white;
   font-size: 10px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
 }
 
 .sidebar-user {
   margin-top: auto;
-  padding: 20px 24px;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 24px 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .sidebar-avatar {
-  width: 40px;
-  height: 40px;
-  background: var(--purple);
+  width: 44px;
+  height: 44px;
+  background: var(--purple-gradient);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
 }
 
 .sidebar-user-info { flex: 1; }
@@ -432,14 +318,15 @@ body {
 /* Main Content */
 .main-content {
   flex: 1;
-  margin-left: 260px;
+  margin-left: 280px;
   min-height: 100vh;
 }
 
 .header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 16px 32px;
+  background: rgba(2, 6, 23, 0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 20px 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -448,9 +335,9 @@ body {
   z-index: 50;
 }
 
-.header-left { display: flex; align-items: center; gap: 16px; }
-.header-title { font-size: 20px; font-weight: 600; }
-.header-subtitle { font-size: 13px; color: var(--text-secondary); }
+.header-left { display: flex; align-items: center; gap: 20px; }
+.header-title { font-size: 24px; font-weight: 700; color: white; background: var(--purple-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.header-subtitle { font-size: 13px; color: var(--text-tertiary); }
 
 .header-right {
   display: flex;
@@ -463,96 +350,159 @@ body {
 }
 
 .header-search input {
-  width: 280px;
-  padding: 10px 16px 10px 40px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  width: 320px;
+  padding: 12px 20px 12px 48px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-xl);
   font-size: 14px;
-  background: var(--bg);
+  background: rgba(30, 41, 59, 0.5);
+  color: white;
   transition: var(--transition);
 }
 
-.header-search input:focus {
-  outline: none;
-  border-color: var(--purple);
-  background: white;
-}
+.header-search input::placeholder { color: var(--text-tertiary); }
+.header-search input:focus { outline: none; border-color: var(--purple); background: rgba(30, 41, 59, 0.8); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
 
 .header-search-icon {
   position: absolute;
-  left: 14px;
+  left: 18px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-tertiary);
 }
 
 .header-btn {
-  width: 40px;
-  height: 40px;
-  border: none;
-  background: var(--bg);
-  border-radius: var(--radius-md);
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(30, 41, 59, 0.5);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   transition: var(--transition);
   position: relative;
 }
 
 .header-btn:hover {
-  background: var(--purple-light);
-  color: var(--purple);
+  background: rgba(99, 102, 241, 0.2);
+  border-color: var(--purple);
+  color: white;
+  transform: translateY(-2px);
 }
 
 .header-btn .notification-dot {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 8px;
-  height: 8px;
+  top: 10px;
+  right: 10px;
+  width: 10px;
+  height: 10px;
   background: var(--red);
   border-radius: 50%;
-  border: 2px solid var(--surface);
+  border: 2px solid var(--bg);
+  animation: notificationPulse 2s ease-in-out infinite;
+}
+
+@keyframes notificationPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
 }
 
 .page-content {
-  padding: 32px;
+  padding: 40px;
 }
 
 /* Cards */
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 24px;
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-2xl);
+  padding: 28px;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border-color: rgba(99, 102, 241, 0.3);
 }
 
 .card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .card-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
+  color: white;
 }
 
 .card-subtitle {
   font-size: 13px;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
+  margin-top: 4px;
 }
 
-.card-action {
-  font-size: 13px;
-  color: var(--purple);
-  cursor: pointer;
+/* Net Worth Card */
+.net-worth-card {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(139, 92, 246, 0.2) 50%, rgba(168, 85, 247, 0.1) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  padding: 40px;
+  border-radius: var(--radius-2xl);
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
 }
 
-.card-action:hover { text-decoration: underline; }
+.net-worth-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+  animation: glowRotate 10s linear infinite;
+}
+
+@keyframes glowRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.net-worth-label { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+.net-worth-value {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 56px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff 0%, #c7d2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+.net-worth-change { display: flex; align-items: center; gap: 12px; font-size: 15px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; }
+.net-worth-chart { margin-top: 32px; height: 100px; position: relative; z-index: 1; }
 
 /* Stats Grid */
 .stats-grid {
@@ -563,529 +513,190 @@ body {
 }
 
 .stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xl);
   padding: 24px;
   transition: var(--transition);
   position: relative;
   overflow: hidden;
 }
 
-.stat-card::before {
+.stat-card::after {
   content: '';
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--purple), var(--teal));
+  background: var(--purple-gradient);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.3s ease;
 }
 
-.stat-card:hover::before {
+.stat-card:hover::after {
   transform: scaleX(1);
 }
 
 .stat-card:hover { 
-  box-shadow: var(--shadow-lg); 
-  transform: translateY(-4px) scale(1.02); 
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 25px 50px rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.3);
 }
 
 .stat-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .stat-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.3s ease;
 }
 
-.stat-icon-purple { background: var(--purple-light); color: var(--purple); }
-.stat-icon-teal { background: var(--teal-light); color: var(--teal); }
-.stat-icon-amber { background: var(--amber-light); color: var(--amber); }
-.stat-icon-green { background: var(--green-light); color: var(--green); }
+.stat-card:hover .stat-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.stat-icon-purple { background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2)); color: #818cf8; }
+.stat-icon-teal { background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(20, 184, 166, 0.1)); color: #2dd4bf; }
+.stat-icon-amber { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1)); color: #fbbf24; }
+.stat-icon-green { background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1)); color: #4ade80; }
 
 .stat-trend {
   font-size: 12px;
-  font-weight: 500;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.stat-trend.up { background: var(--green-light); color: var(--green); }
-.stat-trend.down { background: var(--red-light); color: var(--red); }
+.stat-trend.up { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.stat-trend.down { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 
 .stat-value {
   font-family: 'Space Grotesk', monospace;
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
-  margin-bottom: 4px;
+  color: white;
+  margin-bottom: 6px;
 }
 
 .stat-label {
   font-size: 13px;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
 }
 
 .stat-chart {
-  margin-top: 16px;
-  height: 60px;
+  margin-top: 20px;
+  height: 50px;
 }
 
 /* Grid Layout */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 24px;
+  gap: 32px;
   margin-bottom: 32px;
 }
-
-/* Login Styles */
-.login-container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  padding: 20px;
-  position: relative;
-  overflow: hidden;
-}
-
-.login-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: var(--radius-xl);
-  padding: 48px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 25px 80px rgba(0,0,0,0.4);
-  position: relative;
-  z-index: 1;
-  animation: card-appear 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes card-appear {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.login-header {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.login-logo {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 16px;
-  animation: logo-float 3s ease-in-out infinite;
-}
-
-@keyframes logo-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-.login-title {
-  font-family: 'Lora', serif;
-  font-size: 36px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-}
-
-.login-title {
-  font-family: 'Lora', serif;
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--purple);
-  margin-bottom: 8px;
-}
-
-.login-subtitle {
-  color: var(--text-secondary);
-  font-size: 14px;
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.login-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.login-tab {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  background: var(--bg);
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-  color: var(--text-secondary);
-}
-
-.login-tab.active {
-  background: var(--purple);
-  color: white;
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.input-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.input {
-  padding: 12px 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  font-family: inherit;
-  transition: var(--transition);
-}
-
-.input:focus {
-  outline: none;
-  border-color: var(--purple);
-  box-shadow: 0 0 0 3px rgba(83,74,183,0.1);
-}
-
-.login-btn {
-  width: 100%;
-  padding: 14px;
-  background: var(--purple-gradient);
-  color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-  margin-top: 8px;
-}
-
-.login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-glow);
-}
-
-.login-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.modal {
-  background: white;
-  border-radius: var(--radius-xl);
-  padding: 32px;
-  width: 100%;
-  max-width: 480px;
-  max-height: 90vh;
-  overflow-y: auto;
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-.modal-title {
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.modal-close {
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: var(--bg);
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-  transition: var(--transition);
-}
-
-.modal-close:hover {
-  background: var(--red-light);
-  color: var(--red);
-}
-
-.modal-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 24px;
-}
-
-.modal-actions .btn {
-  flex: 1;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.select {
-  padding: 12px 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  font-family: inherit;
-  background: white;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.select:focus {
-  outline: none;
-  border-color: var(--purple);
-}
-
-.toast {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  padding: 16px 24px;
-  background: var(--purple);
-  color: white;
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  font-weight: 500;
-  z-index: 2000;
-  animation: slideIn 0.3s ease;
-  box-shadow: var(--shadow-lg);
-}
-
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-.toast.success { background: var(--green); }
-.toast.error { background: var(--red); }
-.toast.warning { background: var(--amber); }
 
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
+  gap: 32px;
   margin-bottom: 32px;
 }
 
 /* Chart Styles */
 .chart-container {
-  height: 280px;
+  height: 300px;
   position: relative;
 }
 
 .chart-legend {
   display: flex;
-  gap: 24px;
-  margin-top: 16px;
+  gap: 32px;
+  margin-top: 24px;
   justify-content: center;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 13px;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
 }
 
 .legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
 }
 
 /* Pie Chart */
 .pie-chart-container {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 40px;
 }
 
-.pie-chart {
-  width: 180px;
-  height: 180px;
-}
-
-.pie-legend {
-  flex: 1;
-}
-
+.pie-chart { width: 200px; height: 200px; }
+.pie-legend { flex: 1; }
 .pie-legend-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
-
 .pie-legend-item:last-child { border-bottom: none; }
+.pie-legend-color { width: 14px; height: 14px; border-radius: 4px; }
 
-.pie-legend-color {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-  margin-right: 8px;
-}
-
-.pie-legend-label { font-size: 13px; flex: 1; }
-.pie-legend-value { font-weight: 600; font-size: 13px; }
-
-/* Transactions */
-.transaction-list {
-  max-height: 400px;
-  overflow-y: auto;
-}
+/* Transaction List */
+.transaction-list { display: flex; flex-direction: column; gap: 12px; }
 
 .transaction-item {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--border);
+  padding: 16px;
+  background: rgba(30, 41, 59, 0.4);
+  border-radius: var(--radius-lg);
+  transition: var(--transition);
 }
 
-.transaction-item:last-child { border-bottom: none; }
+.transaction-item:hover {
+  background: rgba(99, 102, 241, 0.1);
+  transform: translateX(8px);
+}
 
 .transaction-icon {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
 }
 
 .transaction-info { flex: 1; }
-.transaction-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.transaction-name { font-weight: 600; color: white; margin-bottom: 4px; }
 .transaction-date { font-size: 12px; color: var(--text-tertiary); }
-.transaction-amount { font-weight: 600; font-family: 'Space Grotesk', monospace; }
-.transaction-amount.income { color: var(--green); }
-.transaction-amount.expense { color: var(--text-primary); }
-
-/* Goals Progress */
-.goal-item {
-  padding: 16px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.goal-item:last-child { border-bottom: none; }
-
-.goal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.goal-name { font-size: 14px; font-weight: 500; }
-.goal-badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  background: var(--purple-light);
-  color: var(--purple);
-}
-
-.goal-progress-bar {
-  height: 8px;
-  background: var(--bg);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.goal-progress-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.5s ease;
-}
-
-.goal-stats {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
+.transaction-amount { font-family: 'Space Grotesk', monospace; font-weight: 700; font-size: 16px; }
+.transaction-amount.income { color: #4ade80; }
+.transaction-amount.expense { color: #f87171; }
 
 /* Quick Actions */
 .quick-actions {
@@ -1098,13 +709,13 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 20px 16px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  gap: 12px;
+  padding: 28px 20px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xl);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
@@ -1116,8 +727,8 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(83,74,183,0.1), transparent);
-  transition: left 0.5s;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.2), transparent);
+  transition: left 0.5s ease;
 }
 
 .quick-action-btn:hover::before {
@@ -1125,473 +736,490 @@ body {
 }
 
 .quick-action-btn:hover {
-  background: var(--purple-light);
-  border-color: var(--purple);
-  transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 10px 30px rgba(83,74,183,0.2);
-}
-
-.quick-action-btn:active {
-  transform: translateY(-2px) scale(1.02);
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
 }
 
 .quick-action-icon {
-  width: 48px;
-  height: 48px;
-  background: var(--purple-light);
-  color: var(--purple);
-  border-radius: var(--radius-md);
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+  color: #818cf8;
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
+  justify-content: center;
   transition: all 0.3s ease;
 }
 
 .quick-action-btn:hover .quick-action-icon {
-  transform: scale(1.1) rotate(5deg);
-  background: var(--purple);
+  transform: scale(1.15) rotate(8deg);
+  background: var(--purple-gradient);
   color: white;
-}
-  justify-content: center;
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
 }
 
 .quick-action-label {
   font-size: 13px;
-  font-weight: 500;
-  color: var(--text-primary);
-  text-align: center;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  transition: color 0.3s ease;
 }
 
-/* Alerts */
-.alert-item {
+.quick-action-btn:hover .quick-action-label {
+  color: white;
+}
+
+/* Goal Item */
+.goal-item {
+  padding: 20px;
+  background: rgba(30, 41, 59, 0.4);
+  border-radius: var(--radius-lg);
+  margin-bottom: 16px;
+  transition: var(--transition);
+}
+
+.goal-item:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.goal-header {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  background: var(--bg);
-  border-radius: var(--radius-md);
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 12px;
 }
 
+.goal-name { font-weight: 600; color: white; }
+.goal-badge {
+  background: var(--purple-gradient);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+.goal-progress-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.goal-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.goal-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+/* Alert Item */
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(30, 41, 59, 0.4);
+  border-radius: var(--radius-lg);
+  margin-bottom: 12px;
+  transition: var(--transition);
+}
+
+.alert-item:hover {
+  transform: translateX(8px);
+}
+
 .alert-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.alert-icon.warning { background: var(--amber-light); color: var(--amber); }
-.alert-icon.info { background: var(--blue-light); color: var(--blue); }
-.alert-icon.success { background: var(--green-light); color: var(--green); }
+.alert-icon.success { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.alert-icon.warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.alert-icon.info { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
 
 .alert-content { flex: 1; }
-.alert-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
-.alert-desc { font-size: 13px; color: var(--text-secondary); }
+.alert-title { font-weight: 600; color: white; margin-bottom: 4px; }
+.alert-desc { font-size: 13px; color: var(--text-tertiary); }
 
-/* Calendar */
-.calendar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.calendar-nav {
-  display: flex;
-  gap: 8px;
-}
-
-.calendar-nav-btn {
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--border);
-  background: white;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition);
-}
-
-.calendar-nav-btn:hover { background: var(--purple-light); border-color: var(--purple); }
-
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-}
-
-.calendar-day-header {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-align: center;
-  padding: 8px;
-}
-
-.calendar-day {
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.calendar-day:hover { background: var(--purple-light); }
-.calendar-day.today { background: var(--purple); color: white; }
-.calendar-day.has-event::after {
-  content: '';
-  width: 4px;
-  height: 4px;
-  background: var(--teal);
-  border-radius: 50%;
-  position: absolute;
-  bottom: 4px;
-}
-
-.calendar-day.other-month { color: var(--text-tertiary); }
-
-/* Progress Ring */
-.progress-ring-container {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.progress-ring-text {
-  position: absolute;
-  text-align: center;
-}
-
-/* Tabs */
-.tabs {
-  display: flex;
-  gap: 4px;
-  padding: 4px;
-  background: var(--bg);
-  border-radius: var(--radius-md);
-  margin-bottom: 20px;
-}
-
-.tab {
-  flex: 1;
-  padding: 10px 16px;
-  font-size: 13px;
-  font-weight: 500;
-  text-align: center;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: var(--transition);
-  color: var(--text-secondary);
-}
-
-.tab:hover { color: var(--text-primary); }
-.tab.active { background: white; color: var(--purple); box-shadow: var(--shadow-sm); }
-
-/* Input */
-.input-group { margin-bottom: 20px; }
-.input-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
-.input {
-  width: 100%;
-  padding: 12px 16px;
-  font-size: 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: white;
-  transition: var(--transition);
-}
-.input:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 3px var(--purple-light); }
-
-/* Button */
+/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   padding: 12px 24px;
+  border-radius: var(--radius-lg);
   font-size: 14px;
   font-weight: 600;
-  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
   position: relative;
   overflow: hidden;
 }
 
 .btn-primary { 
-  background: var(--purple-gradient); 
-  color: white; 
-  transition: all 0.3s ease;
+  background: var(--purple-gradient);
+  color: white;
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
 }
 
 .btn-primary:hover { 
-  background: var(--purple-dark); 
-  box-shadow: 0 8px 25px rgba(83,74,183,0.4);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(99, 102, 241, 0.5);
 }
 
 .btn-primary:active {
-  transform: translateY(0);
-}
-
-.btn-primary::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: rgba(255,255,255,0.2);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.btn-primary:active::after {
-  width: 300px;
-  height: 300px;
+  transform: translateY(-1px);
 }
 
 .btn-outline { 
-  background: transparent; 
-  color: var(--purple); 
-  border: 2px solid var(--purple); 
-  transition: all 0.3s ease;
+  background: transparent;
+  color: #818cf8;
+  border: 2px solid rgba(99, 102, 241, 0.4);
 }
 
 .btn-outline:hover { 
-  background: var(--purple-light);
+  background: rgba(99, 102, 241, 0.1);
+  border-color: var(--purple);
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(83,74,183,0.2);
 }
 
+.btn-sm { padding: 10px 18px; font-size: 13px; }
 .btn-block { width: 100%; }
 
 /* Badge */
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
-  font-size: 11px;
+  padding: 6px 14px;
+  font-size: 12px;
   font-weight: 600;
-  border-radius: var(--radius-full);
+  border-radius: 20px;
+  text-transform: capitalize;
 }
-.badge-purple { background: var(--purple-light); color: var(--purple); }
-.badge-teal { background: var(--teal-light); color: var(--teal); }
-.badge-amber { background: var(--amber-light); color: var(--amber); }
-.badge-green { background: var(--green-light); color: var(--green); }
-.badge-red { background: var(--red-light); color: var(--red); }
+.badge-purple { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+.badge-teal { background: rgba(20, 184, 166, 0.2); color: #2dd4bf; }
+.badge-amber { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.badge-green { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.badge-red { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 
-/* Modal Styles - see top of stylesheet */
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
 .modal {
-  background: white;
-  border-radius: var(--radius-xl);
-  padding: 32px;
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-2xl);
+  padding: 36px;
   width: 100%;
-  max-width: 480px;
+  max-width: 520px;
   max-height: 90vh;
   overflow-y: auto;
-  animation: slideUp 0.3s ease;
+  animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .modal-title {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
 }
 
 .modal-close {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border: none;
-  background: var(--bg);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   transition: var(--transition);
 }
 
 .modal-close:hover {
-  background: var(--red-light);
-  color: var(--red);
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
 }
 
-.modal-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.modal-form { display: flex; flex-direction: column; gap: 20px; }
+.modal-actions { display: flex; gap: 16px; margin-top: 28px; }
+.modal-actions .btn { flex: 1; }
+
+/* Input */
+.input-group { display: flex; flex-direction: column; gap: 8px; }
+.input-label { font-size: 13px; font-weight: 500; color: var(--text-tertiary); }
+
+.input {
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  background: rgba(15, 23, 42, 0.5);
+  color: white;
+  transition: var(--transition);
 }
 
-.modal-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 24px;
+.input::placeholder { color: var(--text-tertiary); }
+.input:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+
+.select {
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  background: rgba(15, 23, 42, 0.5);
+  color: white;
+  cursor: pointer;
 }
 
-.modal-actions .btn {
-  flex: 1;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
 /* Toast */
 .toast {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  padding: 16px 24px;
-  background: var(--purple);
+  bottom: 32px;
+  right: 32px;
+  padding: 18px 28px;
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(99, 102, 241, 0.3);
   color: white;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-xl);
   font-size: 14px;
   font-weight: 500;
   z-index: 2000;
-  animation: slideIn 0.3s ease;
-  box-shadow: var(--shadow-lg);
+  animation: toastSlide 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
 }
 
-@keyframes slideIn {
+@keyframes toastSlide {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
 
-.toast.success { background: var(--green); }
-.toast.error { background: var(--red); }
-.toast.warning { background: var(--amber); }
+.toast.success { border-color: rgba(34, 197, 94, 0.5); }
+.toast.error { border-color: rgba(239, 68, 68, 0.5); }
+.toast.warning { border-color: rgba(245, 158, 11, 0.5); }
 
-/* Table */
-.table {
-  width: 100%;
-  border-collapse: collapse;
+/* Login Styles */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
 }
 
+.login-card {
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-2xl);
+  padding: 52px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 1;
+  animation: cardEntrance 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes cardEntrance {
+  from { opacity: 0; transform: translateY(40px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.login-header { text-align: center; margin-bottom: 40px; }
+
+.login-logo {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 24px;
+  animation: logoFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 10px 30px rgba(255, 182, 193, 0.4));
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
+}
+
+.login-title {
+  font-family: 'Lora', serif;
+  font-size: 42px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #818cf8 0%, #a855f7 50%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+
+.login-subtitle { color: var(--text-tertiary); font-size: 15px; }
+
+.login-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.login-tab {
+  flex: 1;
+  padding: 16px;
+  border: none;
+  background: rgba(30, 41, 59, 0.5);
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-tertiary);
+}
+
+.login-tab.active {
+  background: var(--purple-gradient);
+  color: white;
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+.login-form { display: flex; flex-direction: column; gap: 24px; }
+
+.login-btn {
+  width: 100%;
+  padding: 18px;
+  background: var(--purple-gradient);
+  color: white;
+  border: none;
+  border-radius: var(--radius-xl);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+}
+
+.login-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.5);
+}
+
+/* Table */
+.table { width: 100%; border-collapse: collapse; }
 .table th {
   text-align: left;
-  padding: 12px 16px;
-  font-size: 11px;
+  padding: 16px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--text-tertiary);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
-
 .table td {
-  padding: 16px;
+  padding: 18px 16px;
   font-size: 14px;
-  border-bottom: 1px solid var(--border);
-}
-
-.table tr:hover { background: var(--bg); }
-
-/* Net Worth Card */
-.net-worth-card {
-  background: var(--purple-gradient);
   color: white;
-  padding: 32px;
-  border-radius: var(--radius-lg);
-  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
+.table tr:hover td { background: rgba(99, 102, 241, 0.05); }
 
-.net-worth-label { font-size: 13px; opacity: 0.8; margin-bottom: 4px; }
-.net-worth-value {
-  font-family: 'Space Grotesk', monospace;
-  font-size: 42px;
-  font-weight: 700;
-  margin-bottom: 8px;
+/* Chatbot */
+.chatbot {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 380px;
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow: hidden;
 }
-.net-worth-change { display: flex; align-items: center; gap: 8px; font-size: 14px; }
-.net-worth-chart { margin-top: 24px; height: 80px; }
-
-/* Modal - see top of stylesheet */
-  transform: scale(0.95);
-  transition: var(--transition);
-}
-
-.modal-overlay.active .modal { transform: scale(1); }
-
-.modal-header {
-  padding: 24px 24px 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.modal-title { font-size: 18px; font-weight: 600; }
-.modal-close {
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: var(--bg);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-body { padding: 24px; }
-.modal-footer { padding: 0 24px 24px; display: flex; gap: 12px; }
-.modal-footer .btn { flex: 1; }
 
 /* Utility */
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.font-bold { font-weight: 700; }
+.text-sm { font-size: 13px; }
+.text-xs { font-size: 11px; }
+.text-purple { color: #818cf8; }
+.text-teal { color: #2dd4bf; }
+.text-green { color: #4ade80; }
+.text-red { color: #f87171; }
+.text-amber { color: #fbbf24; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.mb-0 { margin-bottom: 0; }
+.mb-2 { margin-bottom: 8px; }
+.mb-4 { margin-bottom: 16px; }
+.mb-6 { margin-bottom: 24px; }
+.mt-4 { margin-top: 16px; }
+.mt-8 { margin-top: 32px; }
+.p-4 { padding: 16px; }
 .flex { display: flex; }
+.grid { display: grid; }
+.gap-2 { gap: 8px; }
+.gap-4 { gap: 16px; }
 .items-center { align-items: center; }
 .justify-between { justify-content: space-between; }
-.justify-center { justify-content: center; }
-.gap-2 { gap: 8px; }
-.gap-3 { gap: 12px; }
-.gap-4 { gap: 16px; }
-.gap-6 { gap: 24px; }
-.grid { display: grid; }
 .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
 .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
 .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
 .w-full { width: 100%; }
-.mt-2 { margin-top: 8px; }
-.mt-4 { margin-top: 16px; }
-.mt-6 { margin-top: 24px; }
-.mb-2 { margin-bottom: 8px; }
-.mb-4 { margin-bottom: 16px; }
-.mb-6 { margin-bottom: 24px; }
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.text-sm { font-size: 13px; }
-.text-xs { font-size: 12px; }
-.font-bold { font-weight: 600; }
-.text-secondary { color: var(--text-secondary); }
-.text-purple { color: var(--purple); }
-.text-teal { color: var(--teal); }
-.text-green { color: var(--green); }
-.text-red { color: var(--red); }
-.hidden { display: none !important; }
+.cursor-pointer { cursor: pointer; }
   </style>
 </head>
 <body>
@@ -1604,14 +1232,14 @@ const { useState, useEffect, useRef } = React;
 
 function Icon({ name, size = 20 }) {
   const icons = {
-    dashboard: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>,
-    wallet: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>,
+    dashboard: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>,
+    wallet: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><circle cx="18" cy="14" r="2"/></svg>,
     chart: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
     pie: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>,
     target: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
     calendar: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
     creditcard: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
-    settings: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>,
+    settings: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
     bell: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
     search: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
     plus: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
@@ -1623,23 +1251,20 @@ function Icon({ name, size = 20 }) {
     check: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>,
     trendingup: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
     trendingdown: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>,
-    piggy: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h0"/></svg>,
-    home: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
     transfer: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>,
-    award: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>,
-    users: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-    file: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
+    award: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>,
     zap: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+    file: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
     'log-out': <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
   };
   return icons[name] || null;
 }
 
-function LineChart({ data, color = '#534AB7', height = 200 }) {
+function LineChart({ data, color = '#6366f1', height = 200 }) {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
-  const padding = 20;
+  const padding = 30;
   const width = 400;
   
   const points = data.map((val, i) => {
@@ -1654,47 +1279,37 @@ function LineChart({ data, color = '#534AB7', height = 200 }) {
     <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
       <defs>
         <linearGradient id={`gradient-${color.replace('#','')}`} x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3"/>
+          <stop offset="0%" stopColor={color} stopOpacity="0.4"/>
           <stop offset="100%" stopColor={color} stopOpacity="0"/>
         </linearGradient>
       </defs>
       <polygon points={areaPoints} fill={`url(#gradient-${color.replace('#','')})`} />
-      <polyline points={points} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points={points} fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
       {data.map((val, i) => {
         const x = padding + (i / (data.length - 1)) * (width - padding * 2);
         const y = height - padding - ((val - min) / range) * (height - padding * 2);
-        return <circle key={i} cx={x} cy={y} r="4" fill={color} />;
+        return <circle key={i} cx={x} cy={y} r="5" fill={color} />;
       })}
     </svg>
   );
 }
 
-function BarChart({ data, color = '#534AB7', height = 200 }) {
+function BarChart({ data, color = '#6366f1', height = 200 }) {
   const max = Math.max(...data);
-  const barWidth = 100 / data.length - 2;
-  
   return (
     <svg width="100%" height={height} viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet">
       {data.map((val, i) => {
         const barHeight = (val / max) * (height - 40);
         const x = 20 + (i * 100 / data.length) + '%';
         return (
-          <rect
-            key={i}
-            x={x}
-            y={height - 20 - barHeight}
-            width={`${barWidth}%`}
-            height={barHeight}
-            fill={color}
-            rx="4"
-          />
+          <rect key={i} x={x} y={height - 20 - barHeight} width="40" height={barHeight} fill={color} rx="4" style={{ transition: 'all 0.3s ease' }} />
         );
       })}
     </svg>
   );
 }
 
-function DonutChart({ segments, size = 180 }) {
+function DonutChart({ segments }) {
   const total = segments.reduce((sum, s) => sum + s.value, 0);
   let currentAngle = -90;
   
@@ -1704,42 +1319,40 @@ function DonutChart({ segments, size = 180 }) {
     const endAngle = currentAngle + angle;
     currentAngle = endAngle;
     
-    const start = polarToCartesian(size/2, size/2, size/2 - 10, startAngle);
-    const end = polarToCartesian(size/2, size/2, size/2 - 10, endAngle);
-    const largeArcFlag = angle > 180 ? 1 : 0;
+    const x1 = 100 + 80 * Math.cos((startAngle * Math.PI) / 180);
+    const y1 = 100 + 80 * Math.sin((startAngle * Math.PI) / 180);
+    const x2 = 100 + 80 * Math.cos((endAngle * Math.PI) / 180);
+    const y2 = 100 + 80 * Math.sin((endAngle * Math.PI) / 180);
     
-    const d = `M ${start.x} ${start.y} A ${size/2 - 10} ${size/2 - 10} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`;
+    const largeArc = angle > 180 ? 1 : 0;
     
-    return { ...seg, d, color: seg.color || `hsl(${i * 360 / segments.length}, 70%, 50%)` };
-  });
+    if (i === 0) {
+      return `<path d="M100,100 L${x1},${y1} A80,80 0 ${largeArc},1 ${x2},${y2} Z" fill="${seg.color}" />`;
+    }
+    return `<path d="M100,100 L${x1},${y1} A80,80 0 ${largeArc},1 ${x2},${y2} Z" fill="${seg.color}" />`;
+  }).join('');
   
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {paths.map((path, i) => (
-        <path key={i} d={path.d} fill="none" stroke={path.color} strokeWidth="20" />
-      ))}
-      <circle cx={size/2} cy={size/2} r={size/2 - 30} fill="white" />
+    <svg width="200" height="200" viewBox="0 0 200 200">
+      <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="40" />
+      <g dangerouslySetInnerHTML={{ __html: paths }} />
+      <circle cx="100" cy="100" r="50" fill="rgba(30,41,59,0.9)" />
+      <text x="100" y="95" textAnchor="middle" fill="white" fontSize="20" fontWeight="700">${total.toLocaleString()}</text>
+      <text x="100" y="115" textAnchor="middle" fill="#94a3b8" fontSize="10">Total</text>
     </svg>
   );
 }
 
-function polarToCartesian(cx, cy, r, angle) {
-  const rad = angle * Math.PI / 180;
-  return {
-    x: cx + r * Math.cos(rad),
-    y: cy + r * Math.sin(rad)
-  };
-}
-
-function ProgressRing({ progress, size = 120, strokeWidth = 10, color = '#534AB7' }) {
+function ProgressRing({ progress, size = 80, color = '#6366f1' }) {
+  const strokeWidth = 6;
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (progress / 100) * circumference;
   
   return (
     <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="#f0f0f0" strokeWidth={strokeWidth} />
-      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke={color} strokeWidth={strokeWidth} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.5s ease' }} />
+      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={strokeWidth} />
+      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke={color} strokeWidth={strokeWidth} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 1s ease' }} />
     </svg>
   );
 }
@@ -1748,8 +1361,8 @@ function Modal({ isOpen, onClose, title, children }) {
   if (!isOpen) return null;
   
   return (
-    <div className="modal-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ position: 'relative', zIndex: 1001 }}>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2 className="modal-title">{title}</h2>
           <button className="modal-close" onClick={onClose}><Icon name="x" /></button>
@@ -1760,105 +1373,11 @@ function Modal({ isOpen, onClose, title, children }) {
   );
 }
 
-function ChatBot({ isOpen, onClose }) {
-  const [messages, setMessages] = React.useState([
-    { type: 'bot', text: "Hi! I'm Penny AI. Ask me anything about your finances or budgeting!" }
-  ]);
-  const [input, setInput] = React.useState('');
-  
-  const getResponse = (text) => {
-    const lower = text.toLowerCase();
-    if (lower.includes('budget')) return "A good rule of thumb is the 50/30/20 rule: 50% for needs, 30% for wants, and 20% for savings. Want me to help you set up a budget?";
-    if (lower.includes('save') || lower.includes('saving')) return "Great question! Try to save at least 20% of your income. Start small - even $50/month adds up over time!";
-    if (lower.includes('invest')) return "For beginners, I'd recommend starting with low-cost index funds. They offer diversification and historically good returns.";
-    if (lower.includes('debt')) return "Prioritize paying off high-interest debt first (like credit cards). Consider the avalanche or snowball method.";
-    if (lower.includes('emergency')) return "Aim for 3-6 months of expenses in an emergency fund. Start with $1,000 as a mini-goal.";
-    if (lower.includes('credit')) return "Check your credit score regularly, pay bills on time, and keep credit utilization below 30%.";
-    if (lower.includes('tip') || lower.includes('advice')) return "Here are my top tips: 1) Track every expense 2) Set up automatic savings 3) Pay yourself first 4) Avoid lifestyle inflation. Need more specific advice?";
-    if (lower.includes('goal')) return "Setting financial goals? Try SMART goals - Specific, Measurable, Achievable, Relevant, and Time-bound. What's your main financial goal right now?";
-    if (lower.includes('retire') || lower.includes('retirement')) return "For retirement, aim to save 15-20% of your income. Start with your 401k employer match, then max out a Roth IRA. The key is to start early!";
-    if (lower.includes('hello') || lower.includes('hi ') || lower === 'hi') return "Hello! I'm Penny AI, your financial assistant. Ask me anything about budgeting, saving, investing, or managing your money!";
-    return "That's a great question! I can help with budgeting, saving, investing, debt management, and more. What would you like to know?";
-  };
-  
-  const handleSend = () => {
-    if (!input.trim()) return;
-    
-    const userMsg = { type: 'user', text: input };
-    const botMsg = { type: 'bot', text: getResponse(input) };
-    
-    setMessages(prev => [...prev, userMsg, botMsg]);
-    setInput('');
-  };
-  
-  if (!isOpen) return null;
-  
+function Toggle({ enabled, onToggle }) {
   return (
-    <div className="chatbot" style={{ position: 'fixed', bottom: 24, right: 24, width: 360, background: 'white', borderRadius: 16, boxShadow: '0 10px 40px rgba(0,0,0,0.2)', zIndex: 1000, overflow: 'hidden' }}>
-      <div style={{ background: 'var(--purple)', color: 'white', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 36, height: 36, background: 'rgba(255,255,255,0.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/>
-              <circle cx="9" cy="10" r="1.5" fill="currentColor"/>
-              <circle cx="15" cy="10" r="1.5" fill="currentColor"/>
-              <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
-            </svg>
-          </div>
-          <div>
-            <div style={{ fontWeight: 600 }}>Penny AI</div>
-            <div style={{ fontSize: 12, opacity: 0.8 }}>Financial Assistant</div>
-          </div>
-        </div>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: 20 }}>x</button>
-      </div>
-      <div style={{ height: 300, overflowY: 'auto', padding: 16 }}>
-        {messages.map((msg, i) => (
-          <div key={i} style={{ 
-            display: 'flex', 
-            justifyContent: msg.type === 'user' ? 'flex-end' : 'flex-start',
-            marginBottom: 12 
-          }}>
-            <div style={{ 
-              maxWidth: '80%',
-              padding: '10px 14px',
-              borderRadius: msg.type === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-              background: msg.type === 'user' ? 'var(--purple)' : 'var(--bg)',
-              color: msg.type === 'user' ? 'white' : 'var(--text-primary)',
-              fontSize: 14
-            }}>
-              {msg.text}
-            </div>
-          </div>
-        ))}
-      </div>
-      <div style={{ padding: 16, borderTop: '1px solid var(--border)', display: 'flex', gap: 8 }}>
-        <input 
-          type="text" 
-          placeholder="Ask me anything..." 
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-          style={{ flex: 1, padding: '10px 14px', border: '1px solid var(--border)', borderRadius: 24, fontSize: 14, outline: 'none' }}
-        />
-        <button 
-          onClick={handleSend}
-          style={{ 
-            width: 40, 
-            height: 40, 
-            background: 'var(--purple)', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '50%', 
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          <Icon name="arrowup" size={18} />
-        </button>
-      </div>
+    <div onClick={onToggle} style={{ 
+      width: 52, height: 28, background: enabled ? 'var(--purple)' : 'rgba(255,255,255,0.1)', borderRadius: 14, position: 'relative', cursor: 'pointer', transition: 'all 0.3s ease' }}>
+      <div style={{ width: 22, height: 22, background: 'white', borderRadius: 11, position: 'absolute', top: 3, right: enabled ? 3 : 'auto', left: enabled ? 'auto' : 3, transition: 'all 0.3s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}></div>
     </div>
   );
 }
@@ -1881,124 +1400,62 @@ function Login({ onLogin }) {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
-    const geometry = new THREE.TorusGeometry(5, 1.5, 16, 100);
-    const material = new THREE.MeshBasicMaterial({ 
-      color: 0x534AB7, 
-      wireframe: true,
-      transparent: true,
-      opacity: 0.3
-    });
-    const torus = new THREE.Mesh(geometry, material);
-    scene.add(torus);
+    const torusKnot = new THREE.TorusKnotGeometry(5, 1, 128, 32);
+    const material = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.2 });
+    const torusKnotMesh = new THREE.Mesh(torusKnot, material);
+    scene.add(torusKnotMesh);
     
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 500;
+    const particlesCount = 1000;
     const posArray = new Float32Array(particlesCount * 3);
-    
-    for (let i = 0; i < particlesCount * 3; i++) {
-      posArray[i] = (Math.random() - 0.5) * 50;
-    }
-    
+    for (let i = 0; i < particlesCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 80;
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.05,
-      color: 0x6B5BD7,
-      transparent: true,
-      opacity: 0.8
-    });
+    const particlesMaterial = new THREE.PointsMaterial({ size: 0.05, color: 0xa855f7, transparent: true, opacity: 0.6 });
     const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particlesMesh);
     
-    camera.position.z = 15;
+    camera.position.z = 20;
     
-    const geometry2 = new THREE.IcosahedronGeometry(3, 0);
-    const material2 = new THREE.MeshBasicMaterial({ 
-      color: 0x1D9E75, 
-      wireframe: true,
-      transparent: true,
-      opacity: 0.2
-    });
-    const icosahedron = new THREE.Mesh(geometry2, material2);
-    icosahedron.position.x = 8;
-    icosahedron.position.y = 5;
-    scene.add(icosahedron);
-    
-    let mouseX = 0;
-    let mouseY = 0;
-    
-    const handleMouseMove = (event) => {
-      mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-      mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-    };
-    
+    let mouseX = 0, mouseY = 0;
+    const handleMouseMove = (e) => { mouseX = (e.clientX / window.innerWidth) * 2 - 1; mouseY = -(e.clientY / window.innerHeight) * 2 + 1; };
     window.addEventListener('mousemove', handleMouseMove);
     
     const animate = () => {
       requestAnimationFrame(animate);
-      
-      torus.rotation.x += 0.002;
-      torus.rotation.y += 0.003;
-      
-      particlesMesh.rotation.y += 0.0005;
-      
-      icosahedron.rotation.x += 0.001;
-      icosahedron.rotation.y += 0.002;
-      
-      camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
-      camera.position.y += (mouseY * 2 - camera.position.y) * 0.05;
+      torusKnot.rotation.x += 0.003;
+      torusKnot.rotation.y += 0.005;
+      particlesMesh.rotation.y += 0.0003;
+      camera.position.x += (mouseX * 3 - camera.position.x) * 0.02;
+      camera.position.y += (mouseY * 3 - camera.position.y) * 0.02;
       camera.lookAt(scene.position);
-      
       renderer.render(scene, camera);
     };
-    
     animate();
     
-    const handleResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    };
-    
+    const handleResize = () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); };
     window.addEventListener('resize', handleResize);
-    
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', handleResize);
-      renderer.dispose();
-    };
+    return () => { window.removeEventListener('mousemove', handleMouseMove); window.removeEventListener('resize', handleResize); renderer.dispose(); };
   }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
     setTimeout(() => {
-      const user = {
-        name: isLogin ? email.split('@')[0] : name,
-        email: email,
-        avatar: name ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : email.slice(0, 2).toUpperCase()
-      };
+      const user = { name: isLogin ? email.split('@')[0] : name, email, avatar: (name || email).slice(0, 2).toUpperCase() };
       localStorage.setItem('penny_user', JSON.stringify(user));
       onLogin(user);
       setLoading(false);
-    }, 800);
+    }, 1000);
   };
 
   return (
     <div className="login-container">
-      <canvas ref={canvasRef} id="three-canvas"></canvas>
-      <div className="animated-bg">
-        <div className="floating-orb floating-orb-1"></div>
-        <div className="floating-orb floating-orb-2"></div>
-        <div className="floating-orb floating-orb-3"></div>
-        <div className="particles">
-          {[...Array(20)].map((_, i) => (
-            <div key={i} className="particle" style={{ left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 15}s`, animationDuration: `${10 + Math.random() * 10}s` }}></div>
-          ))}
-        </div>
-      </div>
-      <div className="login-card magnetic-card glow-border">
+      <canvas ref={canvasRef} id="three-canvas" style={{ position: 'fixed' }}></canvas>
+      <div className="mesh-bg"></div>
+      <div className="grid-lines"></div>
+      <div className="login-card">
         <div className="login-header">
-          <svg className="login-logo" viewBox="0 0 64 64" fill="none" style={{ filter: 'drop-shadow(0 0 10px rgba(255,182,193,0.5))' }}>
+          <svg className="login-logo" viewBox="0 0 64 64" fill="none">
             <ellipse cx="32" cy="36" rx="22" ry="19" fill="#FFB6C1"/>
             <ellipse cx="32" cy="36" rx="22" ry="19" stroke="#E87E9E" strokeWidth="3"/>
             <circle cx="32" cy="20" r="10" fill="#FFB6C1" stroke="#E87E9E" strokeWidth="3"/>
@@ -2007,41 +1464,35 @@ function Login({ onLogin }) {
             <circle cx="28" cy="16" r="2" fill="#333"/>
             <circle cx="36" cy="16" r="2" fill="#333"/>
             <ellipse cx="32" cy="21" rx="3" ry="2" fill="#E87E9E"/>
-            <path d="M54 28 Q60 36 54 44" stroke="#E87E9E" strokeWidth="3" fill="none" strokeLinecap="round"/>
-            <path d="M16 26 Q10 22 10 30" stroke="#E87E9E" strokeWidth="3" fill="none" strokeLinecap="round"/>
-            <path d="M16 46 Q10 50 10 42" stroke="#E87E9E" strokeWidth="3" fill="none" strokeLinecap="round"/>
+            <path d="M54 28 Q60 36 54 44" stroke="#E87E9E" strokeWidth="3" fill="none"/>
+            <path d="M16 26 Q10 22 10 30" stroke="#E87E9E" strokeWidth="3" fill="none"/>
+            <path d="M16 46 Q10 50 10 42" stroke="#E87E9E" strokeWidth="3" fill="none"/>
             <rect x="26" cy="30" width="12" height="10" rx="2" fill="#E87E9E"/>
           </svg>
-          <h1 className="login-title animated-text">Penny</h1>
-          <p className="login-subtitle">Your financial co-pilot for life</p>
+          <h1 className="login-title">Penny</h1>
+          <p className="login-subtitle">Your AI-Powered Financial Co-Pilot</p>
         </div>
-        
         <div className="login-tabs">
-          <button className={`login-tab ${isLogin ? 'active' : ''} ripple`} onClick={() => setIsLogin(true)}>
-            Sign In
-          </button>
-          <button className={`login-tab ${!isLogin ? 'active' : ''} ripple`} onClick={() => setIsLogin(false)}>
-            Sign Up
-          </button>
+          <button className={`login-tab ${isLogin ? 'active' : ''}`} onClick={() => setIsLogin(true)}>Sign In</button>
+          <button className={`login-tab ${!isLogin ? 'active' : ''}`} onClick={() => setIsLogin(false)}>Sign Up</button>
         </div>
-        
         <form className="login-form" onSubmit={handleSubmit}>
           {!isLogin && (
-            <div className="input-group stagger-item">
+            <div className="input-group">
               <label className="input-label">Full Name</label>
               <input type="text" className="input" placeholder="Jane Doe" value={name} onChange={e => setName(e.target.value)} required />
             </div>
           )}
-          <div className="input-group stagger-item">
+          <div className="input-group">
             <label className="input-label">Email</label>
             <input type="email" className="input" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
-          <div className="input-group stagger-item">
+          <div className="input-group">
             <label className="input-label">Password</label>
             <input type="password" className="input" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required />
           </div>
-          <button type="submit" className="login-btn btn-glow shimmer" disabled={loading}>
-            {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? 'Welcome...' : isLogin ? 'Sign In' : 'Create Account'}
           </button>
         </form>
       </div>
@@ -2058,7 +1509,6 @@ function Sidebar({ activeView, onNavigate, user, onLogout }) {
     { id: 'goals', label: 'Goals', icon: 'target' },
     { id: 'calendar', label: 'Calendar', icon: 'calendar' },
   ];
-  
   const toolsItems = [
     { id: 'reports', label: 'Reports', icon: 'chart' },
     { id: 'insights', label: 'Insights', icon: 'zap' },
@@ -2066,33 +1516,21 @@ function Sidebar({ activeView, onNavigate, user, onLogout }) {
     { id: 'settings', label: 'Settings', icon: 'settings' },
   ];
   
-  const userInitial = user?.avatar || 'JD';
-  
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon">
-          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg viewBox="0 0 40 40" fill="none">
             <ellipse cx="20" cy="22" rx="14" ry="12" fill="#FFB6C1"/>
             <ellipse cx="20" cy="22" rx="14" ry="12" stroke="#E87E9E" strokeWidth="2"/>
             <circle cx="20" cy="12" r="6" fill="#FFB6C1" stroke="#E87E9E" strokeWidth="2"/>
-            <ellipse cx="15" cy="11" rx="2" ry="1.5" fill="#E87E9E"/>
-            <ellipse cx="25" cy="11" rx="2" ry="1.5" fill="#E87E9E"/>
             <circle cx="18" cy="10" r="1" fill="#333"/>
             <circle cx="22" cy="10" r="1" fill="#333"/>
-            <ellipse cx="20" cy="13" rx="2" ry="1" fill="#E87E9E"/>
-            <path d="M34 18 Q38 22 34 26" stroke="#E87E9E" strokeWidth="2" fill="none" strokeLinecap="round"/>
-            <path d="M10 16 Q6 14 6 18" stroke="#E87E9E" strokeWidth="2" fill="none" strokeLinecap="round"/>
-            <path d="M10 28 Q6 30 6 26" stroke="#E87E9E" strokeWidth="2" fill="none" strokeLinecap="round"/>
             <rect x="16" y="19" width="8" height="6" rx="1" fill="#E87E9E"/>
-            <circle cx="18" cy="25" r="0.8" fill="#333"/>
-            <circle cx="22" cy="25" r="0.8" fill="#333"/>
-            <circle cx="20" cy="27" r="0.8" fill="#333"/>
           </svg>
         </div>
         <span className="sidebar-logo-text">Penny</span>
       </div>
-      
       <div className="sidebar-section">
         <div className="sidebar-section-title">Main Menu</div>
         {menuItems.map(item => (
@@ -2103,7 +1541,6 @@ function Sidebar({ activeView, onNavigate, user, onLogout }) {
           </div>
         ))}
       </div>
-      
       <div className="sidebar-section">
         <div className="sidebar-section-title">Tools</div>
         {toolsItems.map(item => (
@@ -2113,16 +1550,13 @@ function Sidebar({ activeView, onNavigate, user, onLogout }) {
           </div>
         ))}
       </div>
-      
       <div className="sidebar-user">
-        <div className="sidebar-avatar">{userInitial}</div>
+        <div className="sidebar-avatar">{user?.avatar || 'JD'}</div>
         <div className="sidebar-user-info">
           <div className="sidebar-user-name">{user?.name || 'Guest'}</div>
           <div className="sidebar-user-email">{user?.email || ''}</div>
         </div>
-        <button onClick={onLogout} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--sidebar-text)', padding: '4px' }} title="Logout">
-          <Icon name="log-out" />
-        </button>
+        <button onClick={onLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', padding: 8 }}><Icon name="log-out" size={18} /></button>
       </div>
     </aside>
   );
@@ -2137,35 +1571,26 @@ function Dashboard({ onQuickAction, onNavigate }) {
   ];
   
   const savingsData = [1200, 1450, 1320, 1580, 1720, 1890, 2100, 2350, 2280, 2456];
-  const spendingData = [2800, 2950, 3100, 3050, 3200, 3080, 3180, 3280, 3150, 3180];
   const spendingByCategory = [
-    { label: 'Housing', value: 1200, color: '#534AB7' },
-    { label: 'Food & Dining', value: 580, color: '#1D9E75' },
-    { label: 'Transportation', value: 340, color: '#BA7517' },
-    { label: 'Entertainment', value: 280, color: '#DC3545' },
-    { label: 'Shopping', value: 420, color: '#28A745' },
-    { label: 'Other', value: 360, color: '#6c757d' },
+    { label: 'Housing', value: 1200, color: '#6366f1' },
+    { label: 'Food & Dining', value: 580, color: '#14b8a6' },
+    { label: 'Transportation', value: 340, color: '#f59e0b' },
+    { label: 'Entertainment', value: 280, color: '#ef4444' },
+    { label: 'Shopping', value: 420, color: '#22c55e' },
+    { label: 'Other', value: 360, color: '#94a3b8' },
   ];
   
   const transactions = [
-    { name: 'Netflix Subscription', date: 'Today, 2:30 PM', amount: '-15.99', type: 'expense', icon: 'creditcard', category: 'Entertainment' },
-    { name: 'Salary Deposit', date: 'Yesterday, 9:00 AM', amount: '+3,500', type: 'income', icon: 'wallet', category: 'Income' },
-    { name: 'Whole Foods Market', date: 'Yesterday, 4:45 PM', amount: '-87.32', type: 'expense', icon: 'creditcard', category: 'Food' },
-    { name: 'Uber Ride', date: 'Mar 18, 11:20 PM', amount: '-24.50', type: 'expense', icon: 'creditcard', category: 'Transport' },
-    { name: 'Amazon Purchase', date: 'Mar 18, 3:15 PM', amount: '-156.00', type: 'expense', icon: 'creditcard', category: 'Shopping' },
-    { name: 'Electric Bill', date: 'Mar 17, 10:00 AM', amount: '-89.00', type: 'expense', icon: 'zap', category: 'Utilities' },
+    { name: 'Netflix Subscription', date: 'Today, 2:30 PM', amount: '-$15.99', type: 'expense', icon: 'creditcard' },
+    { name: 'Salary Deposit', date: 'Yesterday, 9:00 AM', amount: '+$3,500', type: 'income', icon: 'wallet' },
+    { name: 'Whole Foods Market', date: 'Yesterday, 4:45 PM', amount: '-$87.32', type: 'expense', icon: 'creditcard' },
+    { name: 'Uber Ride', date: 'Mar 18, 11:20 PM', amount: '-$24.50', type: 'expense', icon: 'creditcard' },
   ];
   
   const goals = [
-    { name: 'Emergency Fund', current: 8500, target: 10000, color: '#534AB7' },
-    { name: 'Vacation Fund', current: 2400, target: 5000, color: '#1D9E75' },
-    { name: 'New Car Down Payment', current: 4200, target: 15000, color: '#BA7517' },
-  ];
-  
-  const alerts = [
-    { type: 'warning', title: 'Subscription Renewal', desc: 'Spotify annual plan renews in 3 days ($109.99)' },
-    { type: 'info', title: 'Bill Due Soon', desc: 'Credit card payment due in 5 days' },
-    { type: 'success', title: 'Goal Milestone', desc: 'You reached 85% of your Emergency Fund goal!' },
+    { name: 'Emergency Fund', current: 8500, target: 10000, color: '#6366f1' },
+    { name: 'Vacation Fund', current: 2400, target: 5000, color: '#14b8a6' },
+    { name: 'New Car Down Payment', current: 4200, target: 15000, color: '#f59e0b' },
   ];
   
   return (
@@ -2174,25 +1599,18 @@ function Dashboard({ onQuickAction, onNavigate }) {
         <div className="net-worth-label">Total Net Worth</div>
         <div className="net-worth-value">$24,563</div>
         <div className="net-worth-change">
-          <span className="badge badge-green">+12.5%</span>
-          <span style={{ opacity: 0.8 }}>vs last month</span>
+          <span style={{ background: 'rgba(34, 197, 94, 0.2)', color: '#4ade80', padding: '6px 14px', borderRadius: 20, fontSize: 13 }}>+12.5%</span>
+          <span>vs last month</span>
         </div>
-        <div className="net-worth-chart">
-          <LineChart data={savingsData} color="#ffffff" height={80} />
-        </div>
+        <div className="net-worth-chart"><LineChart data={savingsData} color="#ffffff" height={100} /></div>
       </div>
       
       <div className="stats-grid">
         {stats.map((stat, i) => (
           <div key={i} className="stat-card">
             <div className="stat-header">
-              <div className={`stat-icon stat-icon-${stat.icon === 'wallet' ? 'purple' : stat.icon === 'trendingup' ? 'teal' : stat.icon === 'trendingdown' ? 'amber' : 'green'}`}>
-                <Icon name={stat.icon} />
-              </div>
-              <span className={`stat-trend ${stat.trend}`}>
-                <Icon name={stat.trend === 'up' ? 'trendingup' : 'trendingdown'} size={12} />
-                {stat.change}
-              </span>
+              <div className={`stat-icon stat-icon-${stat.icon === 'wallet' ? 'purple' : stat.icon === 'trendingup' ? 'teal' : stat.icon === 'trendingdown' ? 'amber' : 'green'}`}><Icon name={stat.icon} size={24} /></div>
+              <span className={`stat-trend ${stat.trend}`}><Icon name={stat.trend === 'up' ? 'trendingup' : 'trendingdown'} size={12} />{stat.change}</span>
             </div>
             <div className="stat-value">{stat.value}</div>
             <div className="stat-label">{stat.label}</div>
@@ -2202,40 +1620,19 @@ function Dashboard({ onQuickAction, onNavigate }) {
       
       <div className="dashboard-grid">
         <div className="card">
-          <div className="card-header">
-            <div>
-              <div className="card-title">Savings vs Spending</div>
-              <div className="card-subtitle">Last 10 months</div>
-            </div>
-          </div>
+          <div className="card-header"><div className="card-title">Savings Trend</div></div>
           <div className="chart-legend">
-            <div className="legend-item">
-              <div className="legend-dot" style={{ background: '#534AB7' }}></div>
-              <span>Savings</span>
-            </div>
-            <div className="legend-item">
-              <div className="legend-dot" style={{ background: '#DC3545' }}></div>
-              <span>Spending</span>
-            </div>
+            <div className="legend-item"><div className="legend-dot" style={{ background: '#6366f1' }}></div><span>Savings</span></div>
           </div>
-          <LineChart data={savingsData} color="#534AB7" />
+          <LineChart data={savingsData} color="#6366f1" />
         </div>
-        
         <div className="card">
-            <div className="card-header">
-            <div className="card-title">Recent Transactions</div>
-            <span className="card-action" onClick={() => onNavigate('transactions')} style={{cursor: 'pointer'}}>View All</span>
-          </div>
+          <div className="card-header"><div className="card-title">Recent Transactions</div><span className="card-action" onClick={() => onNavigate('transactions')} style={{cursor:'pointer', color:'#818cf8'}}>View All</span></div>
           <div className="transaction-list">
             {transactions.map((t, i) => (
               <div key={i} className="transaction-item">
-                <div className="transaction-icon" style={{ background: t.type === 'income' ? 'var(--green-light)' : 'var(--bg)' }}>
-                  <Icon name={t.type === 'income' ? 'arrowup' : 'creditcard'} />
-                </div>
-                <div className="transaction-info">
-                  <div className="transaction-name">{t.name}</div>
-                  <div className="transaction-date">{t.date}</div>
-                </div>
+                <div className="transaction-icon" style={{ background: t.type === 'income' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(99, 102, 241, 0.2)', color: t.type === 'income' ? '#4ade80' : '#818cf8' }}><Icon name={t.icon} size={20} /></div>
+                <div className="transaction-info"><div className="transaction-name">{t.name}</div><div className="transaction-date">{t.date}</div></div>
                 <div className={`transaction-amount ${t.type}`}>{t.amount}</div>
               </div>
             ))}
@@ -2245,105 +1642,41 @@ function Dashboard({ onQuickAction, onNavigate }) {
       
       <div className="charts-grid">
         <div className="card">
-          <div className="card-header">
-            <div className="card-title">Spending by Category</div>
-            <span className="card-subtitle">This month</span>
-          </div>
+          <div className="card-header"><div className="card-title">Spending by Category</div></div>
           <div className="pie-chart-container">
             <DonutChart segments={spendingByCategory} />
             <div className="pie-legend">
               {spendingByCategory.map((item, i) => (
                 <div key={i} className="pie-legend-item">
-                  <div className="pie-legend-color" style={{ background: item.color }}></div>
-                  <span className="pie-legend-label">{item.label}</span>
-                  <span className="pie-legend-value">${item.value}</span>
+                  <div className="flex items-center gap-2"><div className="pie-legend-color" style={{ background: item.color }}></div><span style={{ color: 'white' }}>{item.label}</span></div>
+                  <span style={{ color: '#94a3b8' }}>${item.value}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
-        
         <div className="card">
-          <div className="card-header">
-            <div className="card-title">Monthly Budget</div>
-            <span className="card-action" onClick={() => onNavigate('budgets')} style={{cursor: 'pointer'}}>Manage</span>
-          </div>
-          <BarChart data={spendingData} color="#534AB7" />
-          <div className="mt-4">
-            <div className="flex justify-between mb-2">
-              <span className="text-sm">Budget Used</span>
-              <span className="font-bold">$3,180 / $4,000</span>
-            </div>
-            <div style={{ height: 8, background: 'var(--bg)', borderRadius: 4, overflow: 'hidden' }}>
-              <div style={{ width: '79.5%', height: '100%', background: 'var(--purple)', borderRadius: 4 }}></div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="card">
-          <div className="card-header">
-            <div className="card-title">Savings Goals</div>
-            <span className="card-action" onClick={() => onQuickAction('goal')} style={{cursor: 'pointer'}}>Add New</span>
-          </div>
+          <div className="card-header"><div className="card-title">Savings Goals</div><span className="card-action" onClick={() => onQuickAction('goal')} style={{cursor:'pointer', color:'#818cf8'}}>Add New</span></div>
           {goals.map((goal, i) => {
             const progress = Math.round((goal.current / goal.target) * 100);
             return (
               <div key={i} className="goal-item">
-                <div className="goal-header">
-                  <span className="goal-name">{goal.name}</span>
-                  <span className="goal-badge">{progress}%</span>
-                </div>
-                <div className="goal-progress-bar">
-                  <div className="goal-progress-fill" style={{ width: `${progress}%`, background: goal.color }}></div>
-                </div>
-                <div className="goal-stats">
-                  <span>${goal.current.toLocaleString()} saved</span>
-                  <span>${goal.target.toLocaleString()} goal</span>
-                </div>
+                <div className="goal-header"><span className="goal-name">{goal.name}</span><span className="goal-badge">{progress}%</span></div>
+                <div className="goal-progress-bar"><div className="goal-progress-fill" style={{ width: `${progress}%`, background: goal.color }}></div></div>
+                <div className="goal-stats"><span>${goal.current.toLocaleString()} saved</span><span>${goal.target.toLocaleString()} goal</span></div>
               </div>
             );
           })}
         </div>
-        
-        <div className="card">
-          <div className="card-header">
-            <div className="card-title">Alerts & Reminders</div>
-          </div>
-          {alerts.map((alert, i) => (
-            <div key={i} className="alert-item">
-              <div className={`alert-icon ${alert.type}`}>
-                <Icon name={alert.type === 'success' ? 'check' : alert.type === 'warning' ? 'bell' : 'zap'} size={16} />
-              </div>
-              <div className="alert-content">
-                <div className="alert-title">{alert.title}</div>
-                <div className="alert-desc">{alert.desc}</div>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
       
       <div className="card">
-        <div className="card-header">
-          <div className="card-title">Quick Actions</div>
-        </div>
+        <div className="card-header"><div className="card-title">Quick Actions</div></div>
         <div className="quick-actions">
-          <button className="quick-action-btn" onClick={() => onQuickAction('transaction')}>
-            <div className="quick-action-icon"><Icon name="plus" /></div>
-            <span className="quick-action-label">Add Transaction</span>
-          </button>
-          <button className="quick-action-btn" onClick={() => onQuickAction('goal')}>
-            <div className="quick-action-icon"><Icon name="target" /></div>
-            <span className="quick-action-label">New Goal</span>
-          </button>
-          <button className="quick-action-btn" onClick={() => onNavigate('accounts')}>
-            <div className="quick-action-icon"><Icon name="transfer" /></div>
-            <span className="quick-action-label">Transfer</span>
-          </button>
-          <button className="quick-action-btn" onClick={() => onNavigate('reports')}>
-            <div className="quick-action-icon"><Icon name="file" /></div>
-            <span className="quick-action-label">Export Report</span>
-          </button>
+          <button className="quick-action-btn" onClick={() => onQuickAction('transaction')}><div className="quick-action-icon"><Icon name="plus" size={24} /></div><span className="quick-action-label">Add Transaction</span></button>
+          <button className="quick-action-btn" onClick={() => onQuickAction('goal')}><div className="quick-action-icon"><Icon name="target" size={24} /></div><span className="quick-action-label">New Goal</span></button>
+          <button className="quick-action-btn" onClick={() => onNavigate('accounts')}><div className="quick-action-icon"><Icon name="transfer" size={24} /></div><span className="quick-action-label">Transfer</span></button>
+          <button className="quick-action-btn" onClick={() => onNavigate('reports')}><div className="quick-action-icon"><Icon name="file" size={24} /></div><span className="quick-action-label">Export Report</span></button>
         </div>
       </div>
     </div>
@@ -2354,62 +1687,38 @@ function AccountsView({ accounts, onAddAccount, onShowToast }) {
   const totalAssets = accounts.filter(a => a.balance > 0).reduce((sum, a) => sum + a.balance, 0);
   const totalDebt = accounts.filter(a => a.balance < 0).reduce((sum, a) => sum + Math.abs(a.balance), 0);
   
-  const handleAddAccount = () => {
-    onShowToast('Account added successfully!', 'success');
-    onAddAccount();
-  };
-  
   return (
     <div>
       <div className="card mb-6">
         <div className="card-header">
-          <div>
-            <div className="card-title">Net Worth Summary</div>
-            <div className="card-subtitle">All accounts combined</div>
-          </div>
+          <div><div className="card-title">Net Worth Summary</div><div className="card-subtitle">All accounts combined</div></div>
         </div>
-        <div className="grid grid-cols-3 gap-6 mt-4">
-          <div className="text-center">
-            <div className="text-sm text-secondary">Total Assets</div>
-            <div className="font-bold text-green" style={{ fontSize: 24 }}>${totalAssets.toLocaleString()}</div>
+        <div className="grid grid-cols-3 gap-4" style={{ marginTop: 24 }}>
+          <div className="text-center p-4" style={{ background: 'rgba(34, 197, 94, 0.1)', borderRadius: 16 }}>
+            <div className="text-sm text-tertiary">Total Assets</div>
+            <div className="font-bold text-green" style={{ fontSize: 28 }}>${totalAssets.toLocaleString()}</div>
           </div>
-          <div className="text-center">
-            <div className="text-sm text-secondary">Total Debt</div>
-            <div className="font-bold text-red" style={{ fontSize: 24 }}>${totalDebt.toLocaleString()}</div>
+          <div className="text-center p-4" style={{ background: 'rgba(239, 68, 68, 0.1)', borderRadius: 16 }}>
+            <div className="text-sm text-tertiary">Total Debt</div>
+            <div className="font-bold text-red" style={{ fontSize: 28 }}>${totalDebt.toLocaleString()}</div>
           </div>
-          <div className="text-center">
-            <div className="text-sm text-secondary">Net Worth</div>
-            <div className="font-bold text-purple" style={{ fontSize: 24 }}>${(totalAssets - totalDebt).toLocaleString()}</div>
+          <div className="text-center p-4" style={{ background: 'rgba(99, 102, 241, 0.1)', borderRadius: 16 }}>
+            <div className="text-sm text-tertiary">Net Worth</div>
+            <div className="font-bold text-purple" style={{ fontSize: 28 }}>${(totalAssets - totalDebt).toLocaleString()}</div>
           </div>
         </div>
       </div>
-      
       <div className="card">
-        <div className="card-header">
-          <div className="card-title">Your Accounts</div>
-          <button className="btn btn-primary btn-sm" onClick={onAddAccount}><Icon name="plus" size={14} /> Add Account</button>
-        </div>
+        <div className="card-header"><div className="card-title">Your Accounts</div><button className="btn btn-primary btn-sm" onClick={onAddAccount}><Icon name="plus" size={16} /> Add Account</button></div>
         <table className="table">
-          <thead>
-            <tr>
-              <th>Account</th>
-              <th>Type</th>
-              <th>Balance</th>
-              <th></th>
-            </tr>
-          </thead>
+          <thead><tr><th>Account</th><th>Type</th><th>Balance</th><th></th></tr></thead>
           <tbody>
             {accounts.map((acc, i) => (
               <tr key={i}>
-                <td>
-                  <div className="font-bold">{acc.name}</div>
-                  <div className="text-sm text-secondary">{acc.bank} **** {acc.last4}</div>
-                </td>
-                <td><span className={`badge ${acc.type === 'credit' ? 'badge-red' : acc.type === 'savings' ? 'badge-teal' : 'badge-purple'}`}>{acc.type}</span></td>
-                <td className="font-bold" style={{ color: acc.balance < 0 ? 'var(--red)' : 'var(--green)' }}>
-                  ${Math.abs(acc.balance).toLocaleString()}
-                </td>
-                <td className="text-right"><span className="card-action">View</span></td>
+                <td><div className="font-bold" style={{ color: 'white' }}>{acc.name}</div><div className="text-sm text-tertiary">{acc.bank} **** {acc.last4}</div></td>
+                <td><span className={`badge badge-${acc.type === 'credit' ? 'red' : acc.type === 'savings' ? 'teal' : 'purple'}`}>{acc.type}</span></td>
+                <td className="font-bold" style={{ color: acc.balance < 0 ? '#f87171' : '#4ade80' }}>${Math.abs(acc.balance).toLocaleString()}</td>
+                <td className="text-right"><span className="card-action" style={{ color: '#818cf8', cursor: 'pointer' }}>View</span></td>
               </tr>
             ))}
           </tbody>
@@ -2419,229 +1728,47 @@ function AccountsView({ accounts, onAddAccount, onShowToast }) {
   );
 }
 
-function GoalsView({ goals, onAddGoal, onShowToast }) {
-  const totalTarget = goals.reduce((sum, g) => sum + g.target, 0);
-  const totalCurrent = goals.reduce((sum, g) => sum + g.current, 0);
-  
-  return (
-    <div>
-      <div className="card mb-6">
-        <div className="card-header">
-          <div>
-            <div className="card-title">Goals Overview</div>
-            <div className="card-subtitle">{goals.length} active goals</div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <div className="text-sm text-secondary">Total Progress</div>
-              <div className="font-bold" style={{ fontSize: 20 }}>${totalCurrent.toLocaleString()} / ${totalTarget.toLocaleString()}</div>
-            </div>
-            <ProgressRing progress={Math.round((totalCurrent / totalTarget) * 100)} size={80} color="#534AB7" />
-          </div>
-        </div>
-      </div>
-      
-      <div className="card">
-        <div className="card-header">
-          <div className="card-title">All Goals</div>
-          <button className="btn btn-primary btn-sm" onClick={onAddGoal}><Icon name="plus" size={14} /> New Goal</button>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          {goals.map((goal) => {
-            const progress = Math.round((goal.current / goal.target) * 100);
-            return (
-              <div key={goal.id} className="card" style={{ padding: 20, borderLeft: `4px solid ${goal.color}` }}>
-                <div className="flex justify-between items-center mb-4">
-                  <div>
-                    <div className="font-bold">{goal.name}</div>
-                    <div className="text-sm text-secondary">Target: ${goal.target.toLocaleString()}</div>
-                  </div>
-                  <span className="badge" style={{ background: goal.color + '20', color: goal.color }}>{progress}%</span>
-                </div>
-                <div style={{ height: 8, background: 'var(--bg)', borderRadius: 4, marginBottom: 12 }}>
-                  <div style={{ width: `${progress}%`, height: '100%', background: goal.color, borderRadius: 4 }}></div>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-secondary">${goal.current.toLocaleString()} saved</span>
-                  <span className="text-secondary">${goal.monthly}/mo needed</span>
-                </div>
-                <div className="mt-2 text-xs text-secondary">Target: {goal.deadline}</div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function InsightsView() {
-  const insights = [
-    { type: 'positive', title: 'Great Savings Rate', desc: 'Your savings rate of 39% is above the recommended 20%. Keep it up!' },
-    { type: 'warning', title: 'Subscription Review', desc: 'You have 8 active subscriptions totaling $156/month. Consider canceling unused ones.' },
-    { type: 'positive', title: 'Low Debt Ratio', desc: 'Your debt-to-income ratio is healthy at 12%.' },
-    { type: 'info', title: 'Investment Opportunity', desc: 'With $12,000 in emergency fund, consider investing excess in index funds.' },
-    { type: 'positive', title: 'Spending on Track', desc: 'You are 12% under budget this month.' },
-  ];
-  
-  const monthlyData = [
-    { month: 'Jan', income: 5200, expenses: 3100 },
-    { month: 'Feb', income: 5200, expenses: 2950 },
-    { month: 'Mar', income: 5400, expenses: 3200 },
-    { month: 'Apr', income: 5300, expenses: 3080 },
-    { month: 'May', income: 5500, expenses: 3300 },
-    { month: 'Jun', income: 5200, expenses: 2800 },
-  ];
-  
-  const maxValue = Math.max(...monthlyData.flatMap(m => [m.income, m.expenses]));
-  
-  return (
-    <div>
-      <div className="card mb-6">
-        <div className="card-header">
-          <div className="card-title">Financial Health Score</div>
-        </div>
-        <div className="flex items-center gap-6">
-          <ProgressRing progress={87} size={140} strokeWidth={12} color="#28A745" />
-          <div>
-            <div className="text-sm text-secondary mb-2">Your Financial Health</div>
-            <div className="font-bold" style={{ fontSize: 32, color: 'var(--green)' }}>Good</div>
-            <div className="text-sm text-secondary mt-2">Based on savings rate, debt ratio, and spending patterns</div>
-          </div>
-        </div>
-      </div>
-      
-      <div className="charts-grid">
-        <div className="card">
-          <div className="card-header">
-            <div className="card-title">Income vs Expenses</div>
-            <div className="card-subtitle">Last 6 months</div>
-          </div>
-          <div style={{ height: 250, position: 'relative' }}>
-            <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet">
-              {monthlyData.map((m, i) => {
-                const barWidth = 30;
-                const spacing = 400 / (monthlyData.length + 1);
-                const x = spacing * (i + 1) - barWidth;
-                const incomeHeight = (m.income / maxValue) * 160;
-                const expenseHeight = (m.expenses / maxValue) * 160;
-                
-                return (
-                  <g key={i}>
-                    <rect x={x - 18} y={180 - incomeHeight} width={barWidth} height={incomeHeight} fill="#1D9E75" rx="4" />
-                    <rect x={x} y={180 - expenseHeight} width={barWidth} height={expenseHeight} fill="#DC3545" rx="4" />
-                    <text x={x - barWidth/2} y={195} textAnchor="middle" fontSize="10" fill="#6b6b6b">{m.month}</text>
-                  </g>
-                );
-              })}
-            </svg>
-          </div>
-          <div className="chart-legend mt-4">
-            <div className="legend-item"><div className="legend-dot" style={{ background: '#1D9E75' }}></div><span>Income</span></div>
-            <div className="legend-item"><div className="legend-dot" style={{ background: '#DC3545' }}></div><span>Expenses</span></div>
-          </div>
-        </div>
-        
-        <div className="card">
-          <div className="card-header">
-            <div className="card-title">AI-Powered Insights</div>
-          </div>
-          {insights.map((insight, i) => (
-            <div key={i} className="alert-item">
-              <div className={`alert-icon ${insight.type === 'positive' ? 'success' : insight.type === 'warning' ? 'warning' : 'info'}`}>
-                <Icon name={insight.type === 'positive' ? 'check' : insight.type === 'warning' ? 'bell' : 'zap'} size={16} />
-              </div>
-              <div className="alert-content">
-                <div className="alert-title">{insight.title}</div>
-                <div className="alert-desc">{insight.desc}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      <div className="card">
-        <div className="card-header">
-          <div className="card-title">Predictions</div>
-        </div>
-        <div className="grid grid-cols-3 gap-4">
-          <div className="text-center p-4" style={{ background: 'var(--bg)', borderRadius: 12 }}>
-            <div className="text-sm text-secondary mb-2">Emergency Fund</div>
-            <div className="font-bold text-purple" style={{ fontSize: 20 }}>Aug 2026</div>
-            <div className="text-xs text-secondary mt-1">At current rate</div>
-          </div>
-          <div className="text-center p-4" style={{ background: 'var(--bg)', borderRadius: 12 }}>
-            <div className="text-sm text-secondary mb-2">Debt Free</div>
-            <div className="font-bold text-teal" style={{ fontSize: 20 }}>Dec 2025</div>
-            <div className="text-xs text-secondary mt-1">Credit card payoff</div>
-          </div>
-          <div className="text-center p-4" style={{ background: 'var(--bg)', borderRadius: 12 }}>
-            <div className="text-sm text-secondary mb-2">Net Worth Goal</div>
-            <div className="font-bold text-green" style={{ fontSize: 20 }}>$50,000</div>
-            <div className="text-xs text-secondary mt-1">By Dec 2028</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function TransactionsView({ transactions, onAddTransaction, onShowToast }) {
-  const [filter, setFilter] = useState('all');
-  
+  const [filter, setFilter] = React.useState('all');
   const filtered = filter === 'all' ? transactions : transactions.filter(t => t.type === filter);
   
   return (
     <div>
       <div className="card mb-6">
-        <div className="card-header">
-          <div className="card-title">Monthly Summary</div>
-        </div>
-        <div className="grid grid-cols-3 gap-6">
-          <div className="text-center">
-            <div className="text-sm text-secondary">Total Income</div>
-            <div className="font-bold text-green" style={{ fontSize: 24 }}>${transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0).toLocaleString()}</div>
+        <div className="card-header"><div className="card-title">Monthly Summary</div></div>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="text-center p-4" style={{ background: 'rgba(34, 197, 94, 0.1)', borderRadius: 16 }}>
+            <div className="text-sm text-tertiary">Total Income</div>
+            <div className="font-bold text-green" style={{ fontSize: 28 }}>${transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0).toLocaleString()}</div>
           </div>
-          <div className="text-center">
-            <div className="text-sm text-secondary">Total Expenses</div>
-            <div className="font-bold text-red" style={{ fontSize: 24 }}>${Math.abs(transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)).toLocaleString()}</div>
+          <div className="text-center p-4" style={{ background: 'rgba(239, 68, 68, 0.1)', borderRadius: 16 }}>
+            <div className="text-sm text-tertiary">Total Expenses</div>
+            <div className="font-bold text-red" style={{ fontSize: 28 }}>${Math.abs(transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)).toLocaleString()}</div>
           </div>
-          <div className="text-center">
-            <div className="text-sm text-secondary">Net</div>
-            <div className="font-bold text-purple" style={{ fontSize: 24 }}>${(transactions.reduce((sum, t) => sum + t.amount, 0)).toLocaleString()}</div>
+          <div className="text-center p-4" style={{ background: 'rgba(99, 102, 241, 0.1)', borderRadius: 16 }}>
+            <div className="text-sm text-tertiary">Net</div>
+            <div className="font-bold text-purple" style={{ fontSize: 28 }}>${transactions.reduce((sum, t) => sum + t.amount, 0).toLocaleString()}</div>
           </div>
         </div>
       </div>
-      
       <div className="card">
         <div className="card-header">
-          <div className="tabs" style={{ marginBottom: 0 }}>
-            <div className={`tab ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>All</div>
-            <div className={`tab ${filter === 'income' ? 'active' : ''}`} onClick={() => setFilter('income')}>Income</div>
-            <div className={`tab ${filter === 'expense' ? 'active' : ''}`} onClick={() => setFilter('expense')}>Expenses</div>
+          <div className="flex gap-2">
+            <button onClick={() => setFilter('all')} className={`btn ${filter === 'all' ? 'btn-primary' : 'btn-outline'} btn-sm`}>All</button>
+            <button onClick={() => setFilter('income')} className={`btn ${filter === 'income' ? 'btn-primary' : 'btn-outline'} btn-sm`}>Income</button>
+            <button onClick={() => setFilter('expense')} className={`btn ${filter === 'expense' ? 'btn-primary' : 'btn-outline'} btn-sm`}>Expenses</button>
           </div>
-          <button className="btn btn-primary btn-sm" onClick={onAddTransaction}><Icon name="plus" size={14} /> Add Transaction</button>
+          <button className="btn btn-primary btn-sm" onClick={onAddTransaction}><Icon name="plus" size={16} /> Add Transaction</button>
         </div>
         <table className="table">
-          <thead>
-            <tr>
-              <th>Transaction</th>
-              <th>Category</th>
-              <th>Date</th>
-              <th style={{ textAlign: 'right' }}>Amount</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Transaction</th><th>Category</th><th>Date</th><th style={{ textAlign: 'right' }}>Amount</th></tr></thead>
           <tbody>
-            {filtered.map(t => (
-              <tr key={t.id}>
-                <td>
-                  <div className="font-bold">{t.name}</div>
-                </td>
+            {filtered.map((t, i) => (
+              <tr key={i}>
+                <td className="font-bold" style={{ color: 'white' }}>{t.name}</td>
                 <td><span className="badge badge-purple">{t.category}</span></td>
-                <td className="text-secondary">{t.date}</td>
-                <td className="text-right font-bold" style={{ color: t.amount > 0 ? 'var(--green)' : 'var(--text-primary)' }}>
-                  {t.amount > 0 ? '+' : ''}${Math.abs(t.amount).toFixed(2)}
-                </td>
+                <td className="text-tertiary">{t.date}</td>
+                <td className="font-bold" style={{ textAlign: 'right', color: t.amount > 0 ? '#4ade80' : '#f87171' }}>${Math.abs(t.amount).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>
@@ -2659,179 +1786,123 @@ function BudgetsView({ budgets, onEditBudgets, onShowToast }) {
     <div>
       <div className="card mb-6">
         <div className="card-header">
-          <div>
-            <div className="card-title">March 2026 Budget</div>
-            <div className="card-subtitle">${totalSpent.toLocaleString()} of ${totalBudget.toLocaleString()} spent</div>
-          </div>
+          <div><div className="card-title">March 2026 Budget</div><div className="card-subtitle">${totalSpent.toLocaleString()} of ${totalBudget.toLocaleString()} spent</div></div>
           <div className="flex items-center gap-4">
-            <div className="text-right">
-              <div className="text-sm text-secondary">Remaining</div>
-              <div className="font-bold" style={{ fontSize: 20 }}>${(totalBudget - totalSpent).toLocaleString()}</div>
-            </div>
-            <ProgressRing progress={Math.round((totalSpent / totalBudget) * 100)} size={70} color="#534AB7" />
+            <div className="text-right"><div className="text-sm text-tertiary">Remaining</div><div className="font-bold" style={{ fontSize: 24, color: 'white' }}>${(totalBudget - totalSpent).toLocaleString()}</div></div>
+            <ProgressRing progress={Math.round((totalSpent / totalBudget) * 100)} size={80} color="#6366f1" />
           </div>
         </div>
-        <div style={{ height: 12, background: 'var(--bg)', borderRadius: 6, overflow: 'hidden', marginTop: 20 }}>
-          <div style={{ width: `${Math.min((totalSpent / totalBudget) * 100, 100)}%`, height: '100%', background: totalSpent > totalBudget ? 'var(--red)' : 'var(--purple)', borderRadius: 6 }}></div>
+        <div style={{ height: 12, background: 'rgba(255,255,255,0.05)', borderRadius: 6, marginTop: 24, overflow: 'hidden' }}>
+          <div style={{ width: `${Math.min((totalSpent / totalBudget) * 100, 100)}%`, height: '100%', background: totalSpent > totalBudget ? '#ef4444' : 'var(--purple-gradient)', borderRadius: 6, transition: 'width 1s ease' }}></div>
         </div>
       </div>
-      
       <div className="card">
-        <div className="card-header">
-          <div className="card-title">Budget Categories</div>
-          <button className="btn btn-outline btn-sm" onClick={onEditBudgets}>Edit Budgets</button>
-        </div>
+        <div className="card-header"><div className="card-title">Budget Categories</div><button className="btn btn-outline btn-sm" onClick={onEditBudgets}>Edit Budgets</button></div>
         {budgets.map((budget, i) => {
           const percent = Math.round((budget.spent / budget.budget) * 100);
-          const isOver = percent > 100;
           return (
-            <div key={i} style={{ padding: '16px 0', borderBottom: i < budgets.length - 1 ? '1px solid var(--border)' : 'none' }}>
+            <div key={i} style={{ padding: '20px 0', borderBottom: i < budgets.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
               <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-3"><div style={{ width: 14, height: 14, borderRadius: 4, background: budget.color }}></div><span className="font-bold" style={{ color: 'white' }}>{budget.category}</span></div>
                 <div className="flex items-center gap-3">
-                  <div style={{ width: 12, height: 12, borderRadius: 3, background: budget.color }}></div>
-                  <span className="font-bold">{budget.category}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`font-bold ${isOver ? 'text-red' : ''}`}>${budget.spent}</span>
-                  <span className="text-secondary">/ ${budget.budget}</span>
-                  {isOver && <span className="badge badge-red">Over</span>}
+                  <span className="font-bold" style={{ color: percent > 100 ? '#f87171' : 'white' }}>${budget.spent}</span>
+                  <span className="text-tertiary">/ ${budget.budget}</span>
+                  {percent > 100 && <span className="badge badge-red">Over</span>}
                 </div>
               </div>
-              <div style={{ height: 8, background: 'var(--bg)', borderRadius: 4 }}>
-                <div style={{ width: `${Math.min(percent, 100)}%`, height: '100%', background: isOver ? 'var(--red)' : budget.color, borderRadius: 4 }}></div>
+              <div style={{ height: 8, background: 'rgba(255,255,255,0.05)', borderRadius: 4 }}>
+                <div style={{ width: `${Math.min(percent, 100)}%`, height: '100%', background: budget.color, borderRadius: 4, transition: 'width 1s ease' }}></div>
               </div>
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+function GoalsView({ goals, onAddGoal, onShowToast }) {
+  const totalTarget = goals.reduce((sum, g) => sum + g.target, 0);
+  const totalCurrent = goals.reduce((sum, g) => sum + g.current, 0);
+  
+  return (
+    <div>
+      <div className="card mb-6">
+        <div className="card-header">
+          <div><div className="card-title">Goals Overview</div><div className="card-subtitle">{goals.length} active goals</div></div>
+          <div className="flex items-center gap-4">
+            <div className="text-right"><div className="text-sm text-tertiary">Total Progress</div><div className="font-bold" style={{ fontSize: 22, color: 'white' }}>${totalCurrent.toLocaleString()} / ${totalTarget.toLocaleString()}</div></div>
+            <ProgressRing progress={Math.round((totalCurrent / totalTarget) * 100)} size={80} color="#6366f1" />
+          </div>
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-header"><div className="card-title">All Goals</div><button className="btn btn-primary btn-sm" onClick={onAddGoal}><Icon name="plus" size={16} /> New Goal</button></div>
+        <div className="grid grid-cols-2 gap-4">
+          {goals.map((goal) => {
+            const progress = Math.round((goal.current / goal.target) * 100);
+            return (
+              <div key={goal.id} className="card" style={{ padding: 24, borderLeft: `4px solid ${goal.color}` }}>
+                <div className="flex justify-between items-center mb-4">
+                  <div><div className="font-bold" style={{ color: 'white' }}>{goal.name}</div><div className="text-sm text-tertiary">Target: ${goal.target.toLocaleString()}</div></div>
+                  <span className="badge" style={{ background: goal.color + '20', color: goal.color }}>{progress}%</span>
+                </div>
+                <div style={{ height: 10, background: 'rgba(255,255,255,0.05)', borderRadius: 5, marginBottom: 16 }}>
+                  <div style={{ width: `${progress}%`, height: '100%', background: goal.color, borderRadius: 5, transition: 'width 1s ease', boxShadow: `0 0 10px ${goal.color}` }}></div>
+                </div>
+                <div className="flex justify-between text-sm"><span className="text-tertiary">${goal.current.toLocaleString()} saved</span><span className="text-tertiary">${goal.monthly}/mo needed</span></div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
 }
 
 function CalendarView({ events, onAddEvent }) {
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 2, 21));
+  const [currentDate, setCurrentDate] = React.useState(new Date(2026, 2, 21));
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  
   const eventDates = {};
   events.forEach(e => { eventDates[e.date] = e; });
-  
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const daysInPrevMonth = new Date(year, month, 0).getDate();
   
-  const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
-  const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
-  
   const calendarDays = [];
-  for (let i = firstDay - 1; i >= 0; i--) {
-    calendarDays.push({ day: daysInPrevMonth - i, otherMonth: true });
-  }
-  for (let i = 1; i <= daysInMonth; i++) {
-    calendarDays.push({ day: i, otherMonth: false });
-  }
-  const remaining = 42 - calendarDays.length;
-  for (let i = 1; i <= remaining; i++) {
-    calendarDays.push({ day: i, otherMonth: true });
-  }
-  
-  const monthName = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+  for (let i = firstDay - 1; i >= 0; i--) calendarDays.push({ day: daysInPrevMonth - i, otherMonth: true });
+  for (let i = 1; i <= daysInMonth; i++) calendarDays.push({ day: i, otherMonth: false });
+  for (let i = 1; calendarDays.length < 42; i++) calendarDays.push({ day: i, otherMonth: true });
   
   return (
     <div className="card">
       <div className="card-header">
         <div className="card-title">Financial Calendar</div>
-        <div className="calendar-nav">
-          <button className="calendar-nav-btn" onClick={prevMonth}><Icon name="chevronleft" /></button>
-          <span className="font-bold" style={{ minWidth: 140, textAlign: 'center' }}>{monthName}</span>
-          <button className="calendar-nav-btn" onClick={nextMonth}><Icon name="chevronright" /></button>
+        <div className="flex items-center gap-4">
+          <button className="btn btn-outline btn-sm" onClick={() => setCurrentDate(new Date(year, month - 1, 1))}><Icon name="chevronleft" size={16} /></button>
+          <span className="font-bold" style={{ minWidth: 160, textAlign: 'center', color: 'white' }}>{currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
+          <button className="btn btn-outline btn-sm" onClick={() => setCurrentDate(new Date(year, month + 1, 1))}><Icon name="chevronright" size={16} /></button>
         </div>
       </div>
-      <div className="calendar-grid">
-        {days.map(day => <div key={day} className="calendar-day-header">{day}</div>)}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8, marginBottom: 24 }}>
+        {days.map(day => <div key={day} className="text-center text-sm text-tertiary" style={{ fontWeight: 600 }}>{day}</div>)}
         {calendarDays.map((d, i) => {
           const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`;
           const hasEvent = eventDates[dateStr];
-          const isToday = d.day === 21 && !d.otherMonth;
           return (
-            <div key={i} className={`calendar-day ${d.otherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${hasEvent ? 'has-event' : ''}`}>
-              {d.day}
-            </div>
+            <div key={i} style={{ padding: 12, background: hasEvent ? 'rgba(99, 102, 241, 0.2)' : d.otherMonth ? 'transparent' : 'rgba(255,255,255,0.02)', borderRadius: 12, textAlign: 'center', color: d.otherMonth ? 'rgba(255,255,255,0.2)' : hasEvent ? '#818cf8' : 'white', fontWeight: hasEvent ? 700 : 400, border: dateStr === '2026-03-21' ? '2px solid #6366f1' : 'none' }}>{d.day}</div>
           );
         })}
       </div>
-      <div className="flex justify-between items-center mt-4">
-        <div className="card-title mb-0">Upcoming Events</div>
-        <button className="btn btn-primary btn-sm" onClick={onAddEvent}><Icon name="plus" size={14} /> Add Event</button>
-      </div>
-      {events.length === 0 ? (
-        <div className="text-center text-secondary" style={{ padding: '24px' }}>No events yet. Add your first event!</div>
-      ) : (
-        events.map(e => (
-          <div key={e.id} className="flex justify-between items-center" style={{ padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
-            <div>
-              <div className="font-bold">{e.title}</div>
-              <div className="text-sm text-secondary">{e.date}</div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span style={{ color: e.color, fontWeight: 600 }}>${e.amount.toLocaleString()}</span>
-              <span className={`badge ${e.type === 'income' ? 'badge-green' : 'badge-red'}`}>{e.type === 'income' ? 'Income' : 'Expense'}</span>
-            </div>
-          </div>
-        ))
-      )}
-    </div>
-  );
-}
-
-function AchievementsView() {
-  const achievements = [
-    { name: 'First Steps', desc: 'Completed onboarding', earned: true, date: 'Mar 1, 2026', icon: 'zap' },
-    { name: 'Goal Setter', desc: 'Created your first savings goal', earned: true, date: 'Mar 3, 2026', icon: 'target' },
-    { name: 'Saver', desc: 'Saved $1,000 total', earned: true, date: 'Mar 10, 2026', icon: 'piggy' },
-    { name: 'Budget Master', desc: 'Stayed under budget for 1 month', earned: true, date: 'Mar 15, 2026', icon: 'pie' },
-    { name: 'Scholar', desc: 'Read 5 financial articles', earned: false, icon: 'award' },
-    { name: 'Consistent', desc: '7-day login streak', earned: false, icon: 'award' },
-    { name: 'Wealth Builder', desc: 'Reach $50,000 net worth', earned: false, icon: 'award' },
-    { name: 'Debt Destroyer', desc: 'Pay off all debt', earned: false, icon: 'award' },
-  ];
-  
-  const earnedCount = achievements.filter(a => a.earned).length;
-  
-  return (
-    <div>
-      <div className="card mb-6">
-        <div className="card-header">
-          <div>
-            <div className="card-title">Achievement Progress</div>
-            <div className="card-subtitle">{earnedCount} of {achievements.length} unlocked</div>
-          </div>
-          <ProgressRing progress={Math.round((earnedCount / achievements.length) * 100)} size={70} color="#BA7517" />
+      <div className="flex justify-between items-center mb-4"><div className="card-title mb-0">Upcoming Events</div><button className="btn btn-primary btn-sm" onClick={onAddEvent}><Icon name="plus" size={14} /> Add Event</button></div>
+      {events.map(e => (
+        <div key={e.id} className="flex justify-between items-center" style={{ padding: '16px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <div><div className="font-bold" style={{ color: 'white' }}>{e.title}</div><div className="text-sm text-tertiary">{e.date}</div></div>
+          <div className="flex items-center gap-2"><span style={{ color: e.color, fontWeight: 700 }}>${e.amount.toLocaleString()}</span><span className={`badge ${e.type === 'income' ? 'badge-green' : 'badge-red'}`}>{e.type}</span></div>
         </div>
-      </div>
-      
-      <div className="card">
-        <div className="card-header">
-          <div className="card-title">All Achievements</div>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          {achievements.map((ach, i) => (
-            <div key={i} style={{ padding: 20, background: ach.earned ? 'var(--purple-light)' : 'var(--bg)', borderRadius: 12, opacity: ach.earned ? 1 : 0.5 }}>
-              <div className="flex items-center gap-4">
-                <div style={{ width: 48, height: 48, background: ach.earned ? 'var(--purple)' : '#ccc', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                  <Icon name={ach.icon} size={24} />
-                </div>
-                <div>
-                  <div className="font-bold">{ach.name}</div>
-                  <div className="text-sm text-secondary">{ach.desc}</div>
-                  {ach.earned && <div className="text-xs text-purple mt-1">Earned {ach.date}</div>}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
@@ -2846,46 +1917,22 @@ function ReportsView({ onExport, onShowToast }) {
   return (
     <div>
       <div className="card mb-6">
-        <div className="card-header">
-          <div className="card-title">Financial Report</div>
-          <button className="btn btn-primary btn-sm" onClick={onExport}><Icon name="file" size={14} /> Export Data (JSON)</button>
-        </div>
+        <div className="card-header"><div className="card-title">Financial Report</div><button className="btn btn-primary btn-sm" onClick={onExport}><Icon name="file" size={16} /> Export Data</button></div>
         <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="text-center p-4" style={{ background: 'var(--bg)', borderRadius: 12 }}>
-            <div className="text-sm text-secondary">Total Income</div>
-            <div className="font-bold text-green" style={{ fontSize: 24 }}>$15,800</div>
-          </div>
-          <div className="text-center p-4" style={{ background: 'var(--bg)', borderRadius: 12 }}>
-            <div className="text-sm text-secondary">Total Expenses</div>
-            <div className="font-bold text-red" style={{ fontSize: 24 }}>$9,250</div>
-          </div>
-          <div className="text-center p-4" style={{ background: 'var(--bg)', borderRadius: 12 }}>
-            <div className="text-sm text-secondary">Total Savings</div>
-            <div className="font-bold text-purple" style={{ fontSize: 24 }}>$6,550</div>
-          </div>
-          <div className="text-center p-4" style={{ background: 'var(--bg)', borderRadius: 12 }}>
-            <div className="text-sm text-secondary">Savings Rate</div>
-            <div className="font-bold text-teal" style={{ fontSize: 24 }}>41.5%</div>
-          </div>
+          <div className="text-center p-4" style={{ background: 'rgba(34, 197, 94, 0.1)', borderRadius: 16 }}><div className="text-sm text-tertiary">Total Income</div><div className="font-bold text-green" style={{ fontSize: 28 }}>$15,800</div></div>
+          <div className="text-center p-4" style={{ background: 'rgba(239, 68, 68, 0.1)', borderRadius: 16 }}><div className="text-sm text-tertiary">Total Expenses</div><div className="font-bold text-red" style={{ fontSize: 28 }}>$9,250</div></div>
+          <div className="text-center p-4" style={{ background: 'rgba(99, 102, 241, 0.1)', borderRadius: 16 }}><div className="text-sm text-tertiary">Total Savings</div><div className="font-bold text-purple" style={{ fontSize: 28 }}>$6,550</div></div>
+          <div className="text-center p-4" style={{ background: 'rgba(20, 184, 166, 0.1)', borderRadius: 16 }}><div className="text-sm text-tertiary">Savings Rate</div><div className="font-bold text-teal" style={{ fontSize: 28 }}>41.5%</div></div>
         </div>
-        
         <table className="table">
-          <thead>
-            <tr>
-              <th>Month</th>
-              <th style={{ textAlign: 'right' }}>Income</th>
-              <th style={{ textAlign: 'right' }}>Expenses</th>
-              <th style={{ textAlign: 'right' }}>Savings</th>
-              <th style={{ textAlign: 'right' }}>Rate</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Month</th><th style={{ textAlign: 'right' }}>Income</th><th style={{ textAlign: 'right' }}>Expenses</th><th style={{ textAlign: 'right' }}>Savings</th><th style={{ textAlign: 'right' }}>Rate</th></tr></thead>
           <tbody>
             {monthlyReport.map((r, i) => (
               <tr key={i}>
-                <td className="font-bold">{r.month} 2026</td>
-                <td style={{ textAlign: 'right', color: 'var(--green)' }}>${r.income.toLocaleString()}</td>
-                <td style={{ textAlign: 'right', color: 'var(--red)' }}>${r.expenses.toLocaleString()}</td>
-                <td style={{ textAlign: 'right', color: 'var(--purple)' }}>${r.savings.toLocaleString()}</td>
+                <td className="font-bold" style={{ color: 'white' }}>{r.month} 2026</td>
+                <td className="text-green" style={{ textAlign: 'right' }}>${r.income.toLocaleString()}</td>
+                <td className="text-red" style={{ textAlign: 'right' }}>${r.expenses.toLocaleString()}</td>
+                <td style={{ textAlign: 'right', color: '#818cf8' }}>${r.savings.toLocaleString()}</td>
                 <td style={{ textAlign: 'right' }}><span className="badge badge-teal">{Math.round((r.savings / r.income) * 100)}%</span></td>
               </tr>
             ))}
@@ -2896,111 +1943,89 @@ function ReportsView({ onExport, onShowToast }) {
   );
 }
 
-function Toggle({ enabled, onToggle }) {
+function InsightsView() {
+  const insights = [
+    { type: 'success', title: 'Great Savings Rate', desc: 'Your savings rate of 39% is above the recommended 20%. Keep it up!' },
+    { type: 'warning', title: 'Subscription Review', desc: 'You have 8 active subscriptions totaling $156/month.' },
+    { type: 'success', title: 'Low Debt Ratio', desc: 'Your debt-to-income ratio is healthy at 12%.' },
+    { type: 'info', title: 'Investment Opportunity', desc: 'With $12,000 in emergency fund, consider investing excess.' },
+  ];
+  
   return (
-    <div 
-      onClick={onToggle}
-      style={{ 
-        width: 50, 
-        height: 28, 
-        background: enabled ? 'var(--purple)' : '#ccc', 
-        borderRadius: 14, 
-        position: 'relative', 
-        cursor: 'pointer',
-        transition: 'background 0.2s'
-      }}>
-      <div style={{ 
-        width: 24, 
-        height: 24, 
-        background: 'white', 
-        borderRadius: 12, 
-        position: 'absolute', 
-        top: 2, 
-        right: enabled ? 2 : 'auto',
-        left: enabled ? 'auto' : 2,
-        transition: 'all 0.2s'
-      }}></div>
+    <div className="card">
+      <div className="card-header"><div className="card-title">AI Financial Insights</div></div>
+      {insights.map((insight, i) => (
+        <div key={i} className="alert-item">
+          <div className={`alert-icon ${insight.type === 'success' ? 'success' : insight.type === 'warning' ? 'warning' : 'info'}`}>
+            <Icon name={insight.type === 'success' ? 'check' : insight.type === 'warning' ? 'bell' : 'zap'} size={20} />
+          </div>
+          <div className="alert-content"><div className="alert-title">{insight.title}</div><div className="alert-desc">{insight.desc}</div></div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AchievementsView() {
+  const achievements = [
+    { name: 'First Steps', desc: 'Completed onboarding', earned: true, date: 'Mar 1, 2026', icon: 'zap' },
+    { name: 'Goal Setter', desc: 'Created your first savings goal', earned: true, date: 'Mar 3, 2026', icon: 'target' },
+    { name: 'Saver', desc: 'Saved $1,000 total', earned: true, date: 'Mar 10, 2026', icon: 'wallet' },
+    { name: 'Budget Master', desc: 'Stay under budget for 3 months', earned: false, icon: 'chart' },
+    { name: 'Investor', desc: 'Started investing', earned: false, icon: 'trendingup' },
+    { name: 'Millionaire', desc: 'Reach $1M net worth', earned: false, icon: 'award' },
+  ];
+  
+  return (
+    <div className="card">
+      <div className="card-header"><div className="card-title">Achievements</div></div>
+      <div className="grid grid-cols-3 gap-4">
+        {achievements.map((a, i) => (
+          <div key={i} className="card" style={{ padding: 24, opacity: a.earned ? 1 : 0.5, textAlign: 'center' }}>
+            <div style={{ width: 64, height: 64, background: a.earned ? 'var(--purple-gradient)' : 'rgba(255,255,255,0.1)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: a.earned ? '0 8px 30px rgba(99, 102, 241, 0.4)' : 'none' }}><Icon name={a.icon} size={28} /></div>
+            <div className="font-bold" style={{ color: 'white', marginBottom: 4 }}>{a.name}</div>
+            <div className="text-sm text-tertiary">{a.desc}</div>
+            {a.earned && <div className="text-xs text-teal" style={{ marginTop: 8 }}>{a.date}</div>}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 function SettingsView({ darkMode, onToggleDarkMode, emailNotifications, onToggleEmail, budgetAlerts, onToggleBudget, onShowToast }) {
-  const handleSave = () => {
-    onShowToast('Settings saved successfully!', 'success');
-  };
-  
-  const handleDelete = () => {
-    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-      localStorage.clear();
-      window.location.reload();
-    }
-  };
-  
   return (
     <div>
       <div className="card mb-6">
-        <div className="card-header">
-          <div className="card-title">Profile Settings</div>
-        </div>
+        <div className="card-header"><div className="card-title">Profile Settings</div></div>
         <div className="grid grid-cols-2 gap-4">
-          <div className="input-group" style={{ marginBottom: 0 }}>
-            <label className="input-label">First Name</label>
-            <input type="text" className="input" defaultValue="Jane" />
-          </div>
-          <div className="input-group" style={{ marginBottom: 0 }}>
-            <label className="input-label">Last Name</label>
-            <input type="text" className="input" defaultValue="Doe" />
-          </div>
-          <div className="input-group" style={{ marginBottom: 0 }}>
-            <label className="input-label">Email</label>
-            <input type="email" className="input" defaultValue="jane@example.com" />
-          </div>
-          <div className="input-group" style={{ marginBottom: 0 }}>
-            <label className="input-label">Currency</label>
-            <select className="input">
-              <option>USD ($)</option>
-              <option>EUR (EUR)</option>
-              <option>GBP (GBP)</option>
-            </select>
-          </div>
+          <div className="input-group"><label className="input-label">First Name</label><input type="text" className="input" defaultValue="Jane" /></div>
+          <div className="input-group"><label className="input-label">Last Name</label><input type="text" className="input" defaultValue="Doe" /></div>
+          <div className="input-group"><label className="input-label">Email</label><input type="email" className="input" defaultValue="jane@example.com" /></div>
+          <div className="input-group"><label className="input-label">Currency</label><select className="input"><option>USD ($)</option><option>EUR</option><option>GBP</option></select></div>
         </div>
-        <button className="btn btn-primary mt-4" onClick={handleSave}>Save Changes</button>
+        <button className="btn btn-primary mt-4" onClick={() => onShowToast('Settings saved!', 'success')}>Save Changes</button>
       </div>
-      
       <div className="card mb-6">
-        <div className="card-header">
-          <div className="card-title">Preferences</div>
-        </div>
-        <div className="flex justify-between items-center" style={{ padding: '16px 0', borderBottom: '1px solid var(--border)' }}>
-          <div>
-            <div className="font-bold">Email Notifications</div>
-            <div className="text-sm text-secondary">Receive weekly financial summaries</div>
-          </div>
+        <div className="card-header"><div className="card-title">Preferences</div></div>
+        <div className="flex justify-between items-center" style={{ padding: '20px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <div><div className="font-bold" style={{ color: 'white' }}>Email Notifications</div><div className="text-sm text-tertiary">Receive weekly summaries</div></div>
           <Toggle enabled={emailNotifications} onToggle={onToggleEmail} />
         </div>
-        <div className="flex justify-between items-center" style={{ padding: '16px 0', borderBottom: '1px solid var(--border)' }}>
-          <div>
-            <div className="font-bold">Budget Alerts</div>
-            <div className="text-sm text-secondary">Get notified when nearing budget limits</div>
-          </div>
+        <div className="flex justify-between items-center" style={{ padding: '20px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <div><div className="font-bold" style={{ color: 'white' }}>Budget Alerts</div><div className="text-sm text-tertiary">Near limit notifications</div></div>
           <Toggle enabled={budgetAlerts} onToggle={onToggleBudget} />
         </div>
-        <div className="flex justify-between items-center" style={{ padding: '16px 0' }}>
-          <div>
-            <div className="font-bold">Dark Mode</div>
-            <div className="text-sm text-secondary">Use dark theme for the app</div>
-          </div>
+        <div className="flex justify-between items-center" style={{ padding: '20px 0' }}>
+          <div><div className="font-bold" style={{ color: 'white' }}>Dark Mode</div><div className="text-sm text-tertiary">Use dark theme</div></div>
           <Toggle enabled={darkMode} onToggle={onToggleDarkMode} />
         </div>
       </div>
-      
       <div className="card">
-        <div className="card-header">
-          <div className="card-title">Data Management</div>
-        </div>
+        <div className="card-header"><div className="card-title">Data Management</div></div>
         <div className="flex gap-4">
-          <button className="btn btn-outline" onClick={() => onShowToast('Use the Reports page to export data', 'info')}><Icon name="file" size={14} /> Export Data</button>
-          <button className="btn btn-outline" style={{ borderColor: 'var(--red)', color: 'var(--red)' }} onClick={handleDelete}>Delete Account</button>
+          <button className="btn btn-outline" onClick={() => onShowToast('Use Reports page to export', 'info')}><Icon name="file" size={16} /> Export Data</button>
+          <button className="btn btn-outline" style={{ borderColor: '#ef4444', color: '#f87171' }} onClick={() => { if (confirm('Delete account?')) { localStorage.clear(); window.location.reload(); } }}>Delete Account</button>
         </div>
       </div>
     </div>
@@ -3008,25 +2033,14 @@ function SettingsView({ darkMode, onToggleDarkMode, emailNotifications, onToggle
 }
 
 function Header({ title, notifications, onToggleNotifications }) {
-  const unreadCount = notifications.filter(n => !n.read).length;
-  
   return (
     <header className="header">
       <div className="header-left">
-        <div>
-          <div className="header-title">{title}</div>
-          <div className="header-subtitle">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</div>
-        </div>
+        <div><div className="header-title">{title}</div><div className="header-subtitle">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</div></div>
       </div>
       <div className="header-right">
-        <div className="header-search">
-          <span className="header-search-icon"><Icon name="search" size={16} /></span>
-          <input type="text" placeholder="Search transactions, goals..." />
-        </div>
-        <button className="header-btn" onClick={onToggleNotifications} style={{ position: 'relative' }}>
-          <Icon name="bell" size={18} />
-          {unreadCount > 0 && <span className="notification-dot"></span>}
-        </button>
+        <div className="header-search"><span className="header-search-icon"><Icon name="search" size={18} /></span><input type="text" placeholder="Search transactions, goals..." /></div>
+        <button className="header-btn" onClick={onToggleNotifications}><Icon name="bell" size={20} />{notifications.filter(n => !n.read).length > 0 && <span className="notification-dot"></span>}</button>
       </div>
     </header>
   );
@@ -3034,409 +2048,183 @@ function Header({ title, notifications, onToggleNotifications }) {
 
 function AccountForm({ onSubmit, onCancel }) {
   const [form, setForm] = React.useState({ name: '', bank: '', balance: 0, type: 'checking' });
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(form);
-  };
-  
   return (
-    <form className="modal-form" onSubmit={handleSubmit}>
-      <div className="input-group">
-        <label className="input-label">Account Name</label>
-        <input type="text" className="input" placeholder="My Checking Account" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
-      </div>
-      <div className="input-group">
-        <label className="input-label">Bank Name</label>
-        <input type="text" className="input" placeholder="Chase Bank" value={form.bank} onChange={e => setForm({...form, bank: e.target.value})} required />
-      </div>
+    <form className="modal-form" onSubmit={(e) => { e.preventDefault(); onSubmit(form); }}>
+      <div className="input-group"><label className="input-label">Account Name</label><input type="text" className="input" placeholder="My Checking" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required /></div>
+      <div className="input-group"><label className="input-label">Bank Name</label><input type="text" className="input" placeholder="Chase Bank" value={form.bank} onChange={e => setForm({...form, bank: e.target.value})} required /></div>
       <div className="form-row">
-        <div className="input-group">
-          <label className="input-label">Account Type</label>
-          <select className="input" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
-            <option value="checking">Checking</option>
-            <option value="savings">Savings</option>
-            <option value="credit">Credit Card</option>
-            <option value="investment">Investment</option>
-          </select>
-        </div>
-        <div className="input-group">
-          <label className="input-label">Current Balance</label>
-          <input type="number" className="input" placeholder="0.00" step="0.01" value={form.balance} onChange={e => setForm({...form, balance: parseFloat(e.target.value) || 0})} />
-        </div>
+        <div className="input-group"><label className="input-label">Type</label><select className="input" value={form.type} onChange={e => setForm({...form, type: e.target.value})}><option>checking</option><option>savings</option><option>credit</option><option>investment</option></select></div>
+        <div className="input-group"><label className="input-label">Balance</label><input type="number" className="input" placeholder="0.00" value={form.balance} onChange={e => setForm({...form, balance: parseFloat(e.target.value) || 0})} /></div>
       </div>
-      <div className="modal-actions">
-        <button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button>
-        <button type="submit" className="btn btn-primary">Add Account</button>
-      </div>
+      <div className="modal-actions"><button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button><button type="submit" className="btn btn-primary">Add Account</button></div>
     </form>
   );
 }
 
 function TransactionForm({ onSubmit, onCancel }) {
   const [form, setForm] = React.useState({ name: '', amount: 0, category: 'Food', type: 'expense' });
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const amount = form.type === 'income' ? Math.abs(form.amount) : -Math.abs(form.amount);
-    onSubmit({ ...form, amount });
-  };
-  
   return (
-    <form className="modal-form" onSubmit={handleSubmit}>
-      <div className="input-group">
-        <label className="input-label">Transaction Name</label>
-        <input type="text" className="input" placeholder="Grocery Store" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
-      </div>
+    <form className="modal-form" onSubmit={(e) => { e.preventDefault(); const amount = form.type === 'income' ? Math.abs(form.amount) : -Math.abs(form.amount); onSubmit({ ...form, amount }); }}>
+      <div className="input-group"><label className="input-label">Name</label><input type="text" className="input" placeholder="Grocery Store" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required /></div>
       <div className="form-row">
-        <div className="input-group">
-          <label className="input-label">Type</label>
-          <select className="input" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
-            <option value="expense">Expense</option>
-            <option value="income">Income</option>
-          </select>
-        </div>
-        <div className="input-group">
-          <label className="input-label">Amount ($)</label>
-          <input type="number" className="input" placeholder="0.00" step="0.01" value={form.amount} onChange={e => setForm({...form, amount: parseFloat(e.target.value) || 0})} required />
-        </div>
+        <div className="input-group"><label className="input-label">Type</label><select className="input" value={form.type} onChange={e => setForm({...form, type: e.target.value})}><option value="expense">Expense</option><option value="income">Income</option></select></div>
+        <div className="input-group"><label className="input-label">Amount ($)</label><input type="number" className="input" placeholder="0.00" value={form.amount} onChange={e => setForm({...form, amount: parseFloat(e.target.value) || 0})} required /></div>
       </div>
-      <div className="input-group">
-        <label className="input-label">Category</label>
-        <select className="input" value={form.category} onChange={e => setForm({...form, category: e.target.value})}>
-          <option value="Food">Food & Dining</option>
-          <option value="Transport">Transportation</option>
-          <option value="Entertainment">Entertainment</option>
-          <option value="Shopping">Shopping</option>
-          <option value="Utilities">Utilities</option>
-          <option value="Health">Health</option>
-          <option value="Housing">Housing</option>
-          <option value="Income">Income</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      <div className="modal-actions">
-        <button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button>
-        <button type="submit" className="btn btn-primary">Add Transaction</button>
-      </div>
+      <div className="input-group"><label className="input-label">Category</label><select className="input" value={form.category} onChange={e => setForm({...form, category: e.target.value})}><option>Food</option><option>Transport</option><option>Entertainment</option><option>Shopping</option><option>Utilities</option><option>Income</option><option>Other</option></select></div>
+      <div className="modal-actions"><button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button><button type="submit" className="btn btn-primary">Add Transaction</button></div>
     </form>
   );
 }
 
 function GoalForm({ onSubmit, onCancel }) {
-  const [form, setForm] = React.useState({ name: '', target: 0, monthly: 0, deadline: '', color: '#534AB7' });
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(form);
-  };
-  
+  const [form, setForm] = React.useState({ name: '', target: 0, monthly: 0, deadline: '', color: '#6366f1' });
   return (
-    <form className="modal-form" onSubmit={handleSubmit}>
-      <div className="input-group">
-        <label className="input-label">Goal Name</label>
-        <input type="text" className="input" placeholder="Dream Vacation" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
-      </div>
+    <form className="modal-form" onSubmit={(e) => { e.preventDefault(); onSubmit(form); }}>
+      <div className="input-group"><label className="input-label">Goal Name</label><input type="text" className="input" placeholder="Dream Vacation" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required /></div>
       <div className="form-row">
-        <div className="input-group">
-          <label className="input-label">Target Amount ($)</label>
-          <input type="number" className="input" placeholder="5000" step="1" value={form.target} onChange={e => setForm({...form, target: parseInt(e.target.value) || 0})} required />
-        </div>
-        <div className="input-group">
-          <label className="input-label">Monthly Contribution ($)</label>
-          <input type="number" className="input" placeholder="300" step="1" value={form.monthly} onChange={e => setForm({...form, monthly: parseInt(e.target.value) || 0})} required />
-        </div>
+        <div className="input-group"><label className="input-label">Target ($)</label><input type="number" className="input" placeholder="5000" value={form.target} onChange={e => setForm({...form, target: parseInt(e.target.value) || 0})} required /></div>
+        <div className="input-group"><label className="input-label">Monthly ($)</label><input type="number" className="input" placeholder="300" value={form.monthly} onChange={e => setForm({...form, monthly: parseInt(e.target.value) || 0})} required /></div>
       </div>
-      <div className="input-group">
-        <label className="input-label">Target Date</label>
-        <input type="text" className="input" placeholder="Dec 2026" value={form.deadline} onChange={e => setForm({...form, deadline: e.target.value})} required />
-      </div>
-      <div className="input-group">
-        <label className="input-label">Color</label>
-        <div className="flex gap-2">
-          {['#534AB7', '#1D9E75', '#BA7517', '#DC3545', '#28A745', '#6c757d'].map(color => (
-            <div key={color} onClick={() => setForm({...form, color})} style={{ width: 32, height: 32, borderRadius: 8, background: color, cursor: 'pointer', border: form.color === color ? '3px solid #333' : 'none' }} />
-          ))}
-        </div>
-      </div>
-      <div className="modal-actions">
-        <button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button>
-        <button type="submit" className="btn btn-primary">Create Goal</button>
-      </div>
+      <div className="input-group"><label className="input-label">Deadline</label><input type="text" className="input" placeholder="Dec 2026" value={form.deadline} onChange={e => setForm({...form, deadline: e.target.value})} required /></div>
+      <div className="modal-actions"><button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button><button type="submit" className="btn btn-primary">Create Goal</button></div>
     </form>
   );
 }
 
 function BudgetForm({ budgets, onSubmit, onCancel }) {
   const [form, setForm] = React.useState(budgets);
-  
-  const handleChange = (index, field, value) => {
-    const newBudgets = [...form];
-    newBudgets[index] = { ...newBudgets[index], [field]: value };
-    setForm(newBudgets);
-  };
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(form);
-  };
-  
   return (
-    <form className="modal-form" onSubmit={handleSubmit} style={{ maxHeight: '400px', overflowY: 'auto' }}>
-      {form.map((budget, i) => (
-        <div key={i} className="form-row" style={{ alignItems: 'center', marginBottom: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
-            <div style={{ width: 12, height: 12, borderRadius: 3, background: budget.color }}></div>
-            <span style={{ fontSize: '14px', fontWeight: 500 }}>{budget.category}</span>
-          </div>
-          <div className="input-group" style={{ marginBottom: 0, flex: 1 }}>
-            <input 
-              type="number" 
-              className="input" 
-              value={budget.budget} 
-              onChange={e => handleChange(i, 'budget', parseInt(e.target.value) || 0)}
-              style={{ textAlign: 'right' }}
-            />
-          </div>
+    <form className="modal-form" onSubmit={(e) => { e.preventDefault(); onSubmit(form); }}>
+      {form.map((b, i) => (
+        <div key={i} className="flex items-center gap-4">
+          <div style={{ width: 14, height: 14, borderRadius: 4, background: b.color }}></div>
+          <span style={{ flex: 1, color: 'white' }}>{b.category}</span>
+          <input type="number" className="input" style={{ width: 120, textAlign: 'right' }} value={b.budget} onChange={e => { const n = [...form]; n[i] = {...n[i], budget: parseInt(e.target.value) || 0}; setForm(n); }} />
         </div>
       ))}
-      <div className="modal-actions">
-        <button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button>
-        <button type="submit" className="btn btn-primary">Save Budgets</button>
-      </div>
+      <div className="modal-actions"><button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button><button type="submit" className="btn btn-primary">Save</button></div>
     </form>
   );
 }
 
 function CalendarForm({ onSubmit, onCancel }) {
-  const [form, setForm] = React.useState({ title: '', date: '', amount: 0, type: 'expense', color: '#DC3545' });
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(form);
-  };
-  
+  const [form, setForm] = React.useState({ title: '', date: '', amount: 0, type: 'expense', color: '#ef4444' });
   return (
-    <form className="modal-form" onSubmit={handleSubmit}>
-      <div className="input-group">
-        <label className="input-label">Event Title</label>
-        <input type="text" className="input" placeholder="Rent Payment" value={form.title} onChange={e => setForm({...form, title: e.target.value})} required />
-      </div>
+    <form className="modal-form" onSubmit={(e) => { e.preventDefault(); onSubmit(form); }}>
+      <div className="input-group"><label className="input-label">Title</label><input type="text" className="input" placeholder="Rent Payment" value={form.title} onChange={e => setForm({...form, title: e.target.value})} required /></div>
       <div className="form-row">
-        <div className="input-group">
-          <label className="input-label">Date</label>
-          <input type="date" className="input" value={form.date} onChange={e => setForm({...form, date: e.target.value})} required />
-        </div>
-        <div className="input-group">
-          <label className="input-label">Amount ($)</label>
-          <input type="number" className="input" placeholder="0.00" step="0.01" value={form.amount} onChange={e => setForm({...form, amount: parseFloat(e.target.value) || 0})} required />
-        </div>
+        <div className="input-group"><label className="input-label">Date</label><input type="date" className="input" value={form.date} onChange={e => setForm({...form, date: e.target.value})} required /></div>
+        <div className="input-group"><label className="input-label">Amount</label><input type="number" className="input" value={form.amount} onChange={e => setForm({...form, amount: parseFloat(e.target.value) || 0})} required /></div>
       </div>
-      <div className="form-row">
-        <div className="input-group">
-          <label className="input-label">Type</label>
-          <select className="input" value={form.type} onChange={e => setForm({...form, type: e.target.value, color: e.target.value === 'income' ? '#28A745' : '#DC3545'})}>
-            <option value="expense">Expense</option>
-            <option value="income">Income</option>
-          </select>
-        </div>
-        <div className="input-group">
-          <label className="input-label">Color</label>
-          <div className="flex gap-2">
-            <div onClick={() => setForm({...form, color: '#DC3545'})} style={{ width: 32, height: 32, borderRadius: 8, background: '#DC3545', cursor: 'pointer', border: form.color === '#DC3545' ? '3px solid #333' : 'none' }} />
-            <div onClick={() => setForm({...form, color: '#28A745'})} style={{ width: 32, height: 32, borderRadius: 8, background: '#28A745', cursor: 'pointer', border: form.color === '#28A745' ? '3px solid #333' : 'none' }} />
-            <div onClick={() => setForm({...form, color: '#534AB7'})} style={{ width: 32, height: 32, borderRadius: 8, background: '#534AB7', cursor: 'pointer', border: form.color === '#534AB7' ? '3px solid #333' : 'none' }} />
-          </div>
-        </div>
-      </div>
-      <div className="modal-actions">
-        <button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button>
-        <button type="submit" className="btn btn-primary">Add Event</button>
-      </div>
+      <div className="modal-actions"><button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button><button type="submit" className="btn btn-primary">Add Event</button></div>
     </form>
   );
 }
 
+function ChatBot({ isOpen, onClose }) {
+  const [messages, setMessages] = React.useState([{ type: 'bot', text: "Hi! I'm Penny AI. Ask me anything about finances!" }]);
+  const [input, setInput] = React.useState('');
+  
+  const getResponse = (text) => {
+    const lower = text.toLowerCase();
+    if (lower.includes('budget')) return "The 50/30/20 rule: 50% needs, 30% wants, 20% savings. Want help budgeting?";
+    if (lower.includes('save')) return "Save at least 20% of income. Start with $50/month - it adds up!";
+    if (lower.includes('invest')) return "For beginners: low-cost index funds offer diversification and good returns.";
+    if (lower.includes('debt')) return "Pay off high-interest debt first. Consider the avalanche or snowball method.";
+    if (lower.includes('hello') || lower.includes('hi')) return "Hello! I'm Penny AI, your financial assistant. How can I help?";
+    return "Great question! I can help with budgeting, saving, investing, and more.";
+  };
+  
+  const handleSend = () => {
+    if (!input.trim()) return;
+    const userMsg = { type: 'user', text: input };
+    const botMsg = { type: 'bot', text: getResponse(input) };
+    setMessages(prev => [...prev, userMsg, botMsg]);
+    setInput('');
+  };
+  
+  if (!isOpen) return null;
+  
+  return (
+    <div className="chatbot">
+      <div style={{ background: 'var(--purple-gradient)', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="flex items-center gap-3">
+          <div style={{ width: 40, height: 40, background: 'rgba(255,255,255,0.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Icon name="zap" size={20} /></div>
+          <div><div style={{ fontWeight: 700, color: 'white' }}>Penny AI</div><div style={{ fontSize: 12, opacity: 0.8 }}>Financial Assistant</div></div>
+        </div>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: 24 }}>x</button>
+      </div>
+      <div style={{ height: 320, overflowY: 'auto', padding: 20 }}>
+        {messages.map((msg, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: msg.type === 'user' ? 'flex-end' : 'flex-start', marginBottom: 12 }}>
+            <div style={{ maxWidth: '80%', padding: '12px 16px', borderRadius: msg.type === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px', background: msg.type === 'user' ? 'var(--purple-gradient)' : 'rgba(30,41,59,0.8)', color: 'white', fontSize: 14 }}>{msg.text}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ padding: 16, borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', gap: 12 }}>
+        <input type="text" placeholder="Ask me anything..." value={input} onChange={e => setInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && handleSend()} style={{ flex: 1, padding: '12px 16px', background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 24, color: 'white', fontSize: 14 }} />
+        <button onClick={handleSend} style={{ width: 44, height: 44, background: 'var(--purple-gradient)', border: 'none', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Icon name="arrowup" size={18} /></button>
+      </div>
+    </div>
+  );
+}
+
 function App() {
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('penny_user');
-    return saved ? JSON.parse(saved) : null;
-  });
-  
-  const [activeView, setActiveView] = useState('dashboard');
+  const [user, setUser] = React.useState(() => { const s = localStorage.getItem('penny_user'); return s ? JSON.parse(s) : null; });
+  const [activeView, setActiveView] = React.useState('dashboard');
   const [toast, setToast] = React.useState(null);
-  
-  const [accounts, setAccounts] = useState([
-    { id: 1, name: 'Checking Account', bank: 'Chase Bank', balance: 8456.23, type: 'checking', last4: '4582' },
-    { id: 2, name: 'Savings Account', bank: 'Ally Bank', balance: 12890.00, type: 'savings', last4: '7891' },
-    { id: 3, name: 'Credit Card', bank: 'Capital One', balance: -1234.56, type: 'credit', last4: '3456' },
-    { id: 4, name: 'Investment Portfolio', bank: 'Fidelity', balance: 4567.89, type: 'investment', last4: '9012' },
-  ]);
-  
-  const [transactions, setTransactions] = useState([
-    { id: 1, name: 'Netflix', date: '2026-03-21', amount: -15.99, category: 'Entertainment', type: 'expense' },
-    { id: 2, name: 'Salary', date: '2026-03-20', amount: 3500, category: 'Income', type: 'income' },
-    { id: 3, name: 'Whole Foods', date: '2026-03-20', amount: -87.32, category: 'Food', type: 'expense' },
-    { id: 4, name: 'Uber', date: '2026-03-19', amount: -24.50, category: 'Transport', type: 'expense' },
-    { id: 5, name: 'Amazon', date: '2026-03-18', amount: -156.00, category: 'Shopping', type: 'expense' },
-    { id: 6, name: 'Electric Bill', date: '2026-03-17', amount: -89.00, category: 'Utilities', type: 'expense' },
-    { id: 7, name: 'Freelance', date: '2026-03-15', amount: 800, category: 'Income', type: 'income' },
-    { id: 8, name: 'Grocery Store', date: '2026-03-15', amount: -65.40, category: 'Food', type: 'expense' },
-    { id: 9, name: 'Gas Station', date: '2026-03-14', amount: -45.00, category: 'Transport', type: 'expense' },
-    { id: 10, name: 'Restaurant', date: '2026-03-13', amount: -52.80, category: 'Food', type: 'expense' },
-  ]);
-  
-  const [goals, setGoals] = useState([
-    { id: 1, name: 'Emergency Fund', target: 10000, current: 8500, monthly: 500, deadline: 'Dec 2026', color: '#534AB7' },
-    { id: 2, name: 'Dream Vacation', target: 5000, current: 2400, monthly: 300, deadline: 'Aug 2026', color: '#1D9E75' },
-    { id: 3, name: 'New Car Down Payment', target: 15000, current: 4200, monthly: 800, deadline: 'Jun 2027', color: '#BA7517' },
-    { id: 4, name: 'Home Office Setup', target: 3000, current: 2100, monthly: 200, deadline: 'Apr 2026', color: '#28A745' },
-    { id: 5, name: 'Wedding Fund', target: 20000, current: 3500, monthly: 1000, deadline: 'Oct 2027', color: '#DC3545' },
-  ]);
-  
+  const [accounts, setAccounts] = React.useState([{ id: 1, name: 'Checking', bank: 'Chase', balance: 8456, type: 'checking', last4: '4582' }, { id: 2, name: 'Savings', bank: 'Ally', balance: 12890, type: 'savings', last4: '7891' }, { id: 3, name: 'Credit Card', bank: 'Capital One', balance: -1234, type: 'credit', last4: '3456' }, { id: 4, name: 'Investment', bank: 'Fidelity', balance: 4567, type: 'investment', last4: '9012' }]);
+  const [transactions, setTransactions] = React.useState([{ id: 1, name: 'Netflix', date: 'Mar 21, 2026', amount: -15.99, category: 'Entertainment', type: 'expense' }, { id: 2, name: 'Salary', date: 'Mar 20, 2026', amount: 3500, category: 'Income', type: 'income' }, { id: 3, name: 'Whole Foods', date: 'Mar 20, 2026', amount: -87.32, category: 'Food', type: 'expense' }, { id: 4, name: 'Uber', date: 'Mar 19, 2026', amount: -24.50, category: 'Transport', type: 'expense' }, { id: 5, name: 'Amazon', date: 'Mar 18, 2026', amount: -156, category: 'Shopping', type: 'expense' }]);
+  const [goals, setGoals] = React.useState([{ id: 1, name: 'Emergency Fund', target: 10000, current: 8500, monthly: 500, deadline: 'Dec 2026', color: '#6366f1' }, { id: 2, name: 'Dream Vacation', target: 5000, current: 2400, monthly: 300, deadline: 'Aug 2026', color: '#14b8a6' }, { id: 3, name: 'New Car', target: 15000, current: 4200, monthly: 800, deadline: 'Jun 2027', color: '#f59e0b' }, { id: 4, name: 'Home Office', target: 3000, current: 2100, monthly: 200, deadline: 'Apr 2026', color: '#22c55e' }, { id: 5, name: 'Wedding', target: 20000, current: 3500, monthly: 1000, deadline: 'Oct 2027', color: '#ef4444' }]);
+  const [budgets, setBudgets] = React.useState([{ category: 'Housing', budget: 1500, spent: 1200, color: '#6366f1' }, { category: 'Food', budget: 600, spent: 580, color: '#14b8a6' }, { category: 'Transport', budget: 400, spent: 340, color: '#f59e0b' }, { category: 'Entertainment', budget: 200, spent: 180, color: '#ef4444' }, { category: 'Shopping', budget: 300, spent: 250, color: '#22c55e' }, { category: 'Utilities', budget: 250, spent: 180, color: '#94a3b8' }]);
+  const [calendarEvents, setCalendarEvents] = React.useState([{ id: 1, title: 'Rent', date: '2026-03-25', amount: 1500, type: 'expense', color: '#ef4444' }, { id: 2, title: 'Paycheck', date: '2026-03-28', amount: 3500, type: 'income', color: '#22c55e' }]);
   const [modal, setModal] = React.useState({ open: false, type: null, title: '' });
   const [showChat, setShowChat] = React.useState(false);
-  
-  const viewTitles = {
-    dashboard: 'Dashboard',
-    accounts: 'Accounts',
-    transactions: 'Transactions',
-    budgets: 'Budgets',
-    goals: 'Goals',
-    calendar: 'Calendar',
-    reports: 'Reports',
-    insights: 'Insights',
-    achievements: 'Achievements',
-    settings: 'Settings',
-  };
-  
-  const showToast = (message, type = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
-  
-  const handleLogin = (userData) => {
-    setUser(userData);
-  };
-  
-  const handleLogout = () => {
-    localStorage.removeItem('penny_user');
-    setUser(null);
-  };
-  
-  const [darkMode, setDarkMode] = React.useState(() => localStorage.getItem('penny_darkMode') === 'true');
-  const [notifications, setNotifications] = React.useState([
-    { id: 1, type: 'warning', title: 'Subscription Renewal', desc: 'Spotify annual plan renews in 3 days', time: '2h ago', read: false },
-    { id: 2, type: 'info', title: 'Bill Due Soon', desc: 'Credit card payment due in 5 days', time: '5h ago', read: false },
-    { id: 3, type: 'success', title: 'Goal Milestone', desc: 'You reached 85% of your Emergency Fund goal!', time: '1d ago', read: true },
-  ]);
-  const [showNotifications, setShowNotifications] = React.useState(false);
+  const [darkMode, setDarkMode] = React.useState(localStorage.getItem('penny_darkMode') === 'true');
+  const [notifications, setNotifications] = React.useState([{ id: 1, type: 'warning', title: 'Subscription', desc: 'Renewal in 3 days', time: '2h ago', read: false }]);
   const [emailNotifications, setEmailNotifications] = React.useState(true);
   const [budgetAlerts, setBudgetAlerts] = React.useState(true);
-  const [budgets, setBudgets] = React.useState([
-    { category: 'Housing', budget: 1500, spent: 1200, color: '#534AB7' },
-    { category: 'Food & Dining', budget: 600, spent: 580, color: '#1D9E75' },
-    { category: 'Transportation', budget: 400, spent: 340, color: '#BA7517' },
-    { category: 'Entertainment', budget: 200, spent: 180, color: '#DC3545' },
-    { category: 'Shopping', budget: 300, spent: 250, color: '#28A745' },
-    { category: 'Utilities', budget: 250, spent: 180, color: '#6c757d' },
-    { category: 'Health', budget: 150, spent: 90, color: '#e83e8c' },
-    { category: 'Personal', budget: 200, spent: 120, color: '#17a2b8' },
-  ]);
-  const [calendarEvents, setCalendarEvents] = React.useState([
-    { id: 1, title: 'Rent Payment', date: '2026-03-25', amount: 1500, type: 'expense', color: '#DC3545' },
-    { id: 2, title: 'Paycheck', date: '2026-03-28', amount: 3500, type: 'income', color: '#28A745' },
-    { id: 3, title: 'Netflix Due', date: '2026-03-30', amount: 15.99, type: 'expense', color: '#534AB7' },
-  ]);
 
-  React.useEffect(() => {
-    if (darkMode) {
-      document.documentElement.style.setProperty('--bg', '#1a1a2e');
-      document.documentElement.style.setProperty('--bg-secondary', '#16213e');
-      document.documentElement.style.setProperty('--surface', '#0f3460');
-      document.documentElement.style.setProperty('--text-primary', '#ffffff');
-      document.documentElement.style.setProperty('--text-secondary', '#a0a0b8');
-      document.documentElement.style.setProperty('--border', 'rgba(255,255,255,0.1)');
-    } else {
-      document.documentElement.style.setProperty('--bg', '#f5f4f7');
-      document.documentElement.style.setProperty('--bg-secondary', '#ffffff');
-      document.documentElement.style.setProperty('--surface', '#ffffff');
-      document.documentElement.style.setProperty('--text-primary', '#1a1a1a');
-      document.documentElement.style.setProperty('--text-secondary', '#6b6b6b');
-      document.documentElement.style.setProperty('--border', 'rgba(0,0,0,0.08)');
-    }
-    localStorage.setItem('penny_darkMode', darkMode);
-  }, [darkMode]);
-
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const viewTitles = { dashboard: 'Dashboard', accounts: 'Accounts', transactions: 'Transactions', budgets: 'Budgets', goals: 'Goals', calendar: 'Calendar', reports: 'Reports', insights: 'Insights', achievements: 'Achievements', settings: 'Settings' };
   
-  const handleQuickAction = (action) => {
-    const titles = { transaction: 'Add Transaction', goal: 'New Goal', account: 'Add Account' };
-    setModal({ open: true, type: action, title: titles[action] || 'Add Item' });
-  };
-  
-  const handleAddAccount = () => {
-    setModal({ open: true, type: 'account', title: 'Add Account' });
-  };
-  
-  const handleAddTransaction = () => {
-    setModal({ open: true, type: 'transaction', title: 'Add Transaction' });
-  };
-  
-  const handleAddGoal = () => {
-    setModal({ open: true, type: 'goal', title: 'New Goal' });
-  };
-  
-  const handleEditBudgets = () => {
-    setModal({ open: true, type: 'budget', title: 'Edit Budgets' });
-  };
-  
-  const handleEditCalendar = () => {
-    setModal({ open: true, type: 'calendar', title: 'Add Calendar Event' });
-  };
-  
-  const closeModal = () => {
-    setModal({ open: false, type: null, title: '' });
-  };
+  const showToast = (message, type = 'success') => { setToast({ message, type }); setTimeout(() => setToast(null), 3000); };
+  const handleLogin = (userData) => { setUser(userData); };
+  const handleLogout = () => { localStorage.removeItem('penny_user'); setUser(null); };
+  const handleQuickAction = (action) => { const titles = { transaction: 'Add Transaction', goal: 'New Goal', account: 'Add Account' }; setModal({ open: true, type: action, title: titles[action] || 'Add' }); };
+  const handleAddAccount = () => setModal({ open: true, type: 'account', title: 'Add Account' });
+  const handleAddTransaction = () => setModal({ open: true, type: 'transaction', title: 'Add Transaction' });
+  const handleAddGoal = () => setModal({ open: true, type: 'goal', title: 'New Goal' });
+  const handleEditBudgets = () => setModal({ open: true, type: 'budget', title: 'Edit Budgets' });
+  const handleEditCalendar = () => setModal({ open: true, type: 'calendar', title: 'Add Event' });
+  const closeModal = () => setModal({ open: false, type: null, title: '' });
   
   const handleAddItem = (type, data) => {
-    if (type === 'account') {
-      const newAccount = { ...data, id: Date.now(), last4: data.last4 || Math.floor(1000 + Math.random() * 9000).toString() };
-      setAccounts([...accounts, newAccount]);
-      showToast('Account added successfully!', 'success');
-    } else if (type === 'transaction') {
-      const newTransaction = { ...data, id: Date.now(), date: new Date().toISOString().split('T')[0] };
-      setTransactions([newTransaction, ...transactions]);
-      showToast('Transaction added!', 'success');
-    } else if (type === 'goal') {
-      const newGoal = { ...data, id: Date.now(), current: 0, color: data.color || '#534AB7' };
-      setGoals([...goals, newGoal]);
-      showToast('Goal created!', 'success');
-    } else if (type === 'budget') {
-      setBudgets(data);
-      showToast('Budgets updated!', 'success');
-    } else if (type === 'calendar') {
-      const newEvent = { ...data, id: Date.now() };
-      setCalendarEvents([...calendarEvents, newEvent]);
-      showToast('Event added!', 'success');
-    }
+    if (type === 'account') setAccounts([...accounts, { ...data, id: Date.now(), last4: Math.floor(1000 + Math.random() * 9000).toString() }]);
+    else if (type === 'transaction') setTransactions([{ ...data, id: Date.now(), date: new Date().toISOString().split('T')[0] }, ...transactions]);
+    else if (type === 'goal') setGoals([...goals, { ...data, id: Date.now(), current: 0 }]);
+    else if (type === 'budget') setBudgets(data);
+    else if (type === 'calendar') setCalendarEvents([...calendarEvents, { ...data, id: Date.now() }]);
+    showToast(`${type} added!`, 'success');
     closeModal();
+  };
+  
+  const handleExport = () => {
+    const blob = new Blob([JSON.stringify({ accounts, transactions, goals, budgets }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'penny-export.json'; a.click();
+    URL.revokeObjectURL(url);
+    showToast('Data exported!', 'success');
   };
   
   const renderModalContent = () => {
     switch (modal.type) {
-      case 'account':
-        return <AccountForm onSubmit={(data) => handleAddItem('account', data)} onCancel={closeModal} />;
-      case 'transaction':
-        return <TransactionForm onSubmit={(data) => handleAddItem('transaction', data)} onCancel={closeModal} />;
-      case 'goal':
-        return <GoalForm onSubmit={(data) => handleAddItem('goal', data)} onCancel={closeModal} />;
-      case 'budget':
-        return <BudgetForm budgets={budgets} onSubmit={(data) => handleAddItem('budget', data)} onCancel={closeModal} />;
-      case 'calendar':
-        return <CalendarForm onSubmit={(data) => handleAddItem('calendar', data)} onCancel={closeModal} />;
-      default:
-        return null;
+      case 'account': return <AccountForm onSubmit={(d) => handleAddItem('account', d)} onCancel={closeModal} />;
+      case 'transaction': return <TransactionForm onSubmit={(d) => handleAddItem('transaction', d)} onCancel={closeModal} />;
+      case 'goal': return <GoalForm onSubmit={(d) => handleAddItem('goal', d)} onCancel={closeModal} />;
+      case 'budget': return <BudgetForm budgets={budgets} onSubmit={(d) => handleAddItem('budget', d)} onCancel={closeModal} />;
+      case 'calendar': return <CalendarForm onSubmit={(d) => handleAddItem('calendar', d)} onCancel={closeModal} />;
+      default: return null;
     }
   };
   
@@ -3448,120 +2236,32 @@ function App() {
       case 'budgets': return <BudgetsView budgets={budgets} onEditBudgets={handleEditBudgets} onShowToast={showToast} />;
       case 'goals': return <GoalsView goals={goals} onAddGoal={handleAddGoal} onShowToast={showToast} />;
       case 'calendar': return <CalendarView events={calendarEvents} onAddEvent={handleEditCalendar} />;
-      case 'reports': return <ReportsView onExport={() => handleExport()} onShowToast={showToast} />;
+      case 'reports': return <ReportsView onExport={handleExport} onShowToast={showToast} />;
       case 'insights': return <InsightsView />;
       case 'achievements': return <AchievementsView />;
-      case 'settings': return <SettingsView 
-        darkMode={darkMode} 
-        onToggleDarkMode={() => setDarkMode(!darkMode)}
-        emailNotifications={emailNotifications}
-        onToggleEmail={() => setEmailNotifications(!emailNotifications)}
-        budgetAlerts={budgetAlerts}
-        onToggleBudget={() => setBudgetAlerts(!budgetAlerts)}
-        onShowToast={showToast} 
-      />;
+      case 'settings': return <SettingsView darkMode={darkMode} onToggleDarkMode={() => setDarkMode(!darkMode)} emailNotifications={emailNotifications} onToggleEmail={() => setEmailNotifications(!emailNotifications)} budgetAlerts={budgetAlerts} onToggleBudget={() => setBudgetAlerts(!budgetAlerts)} onShowToast={showToast} />;
       default: return <Dashboard onQuickAction={handleQuickAction} onNavigate={setActiveView} />;
     }
   };
   
-  const handleExport = () => {
-    const data = {
-      exported: new Date().toISOString(),
-      accounts,
-      transactions,
-      goals,
-      budgets,
-      calendarEvents
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'penny-export.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('Data exported successfully!', 'success');
-  };
-  
-  if (!user) {
-    return <Login onLogin={handleLogin} />;
-  }
+  if (!user) return <Login onLogin={handleLogin} />;
   
   return (
     <div className="app-layout">
+      <div className="mesh-bg"></div>
+      <div className="grid-lines"></div>
       <Sidebar activeView={activeView} onNavigate={setActiveView} user={user} onLogout={handleLogout} />
       <main className="main-content">
-        <Header title={viewTitles[activeView]} notifications={notifications} onToggleNotifications={() => setShowNotifications(!showNotifications)} />
-        <div className="page-content">
-          {renderView()}
-        </div>
+        <Header title={viewTitles[activeView]} notifications={notifications} onToggleNotifications={() => {}} />
+        <div className="page-content">{renderView()}</div>
       </main>
-      
-      {showNotifications && (
-        <div className="modal-overlay" onClick={() => setShowNotifications(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 400 }}>
-            <div className="modal-header">
-              <h2 className="modal-title">Notifications</h2>
-              <button className="modal-close" onClick={() => setShowNotifications(false)}><Icon name="x" /></button>
-            </div>
-            {notifications.length === 0 ? (
-              <div className="text-center text-secondary" style={{ padding: 24 }}>No notifications</div>
-            ) : (
-              notifications.map(n => (
-                <div key={n.id} className="flex gap-3" style={{ padding: '12px 0', borderBottom: '1px solid var(--border)', opacity: n.read ? 0.7 : 1 }}>
-                  <div className={`stat-icon stat-icon-${n.type === 'success' ? 'green' : n.type === 'warning' ? 'amber' : 'purple'}`} style={{ width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon name={n.type === 'success' ? 'check' : n.type === 'warning' ? 'bell' : 'zap'} size={16} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div className="font-bold" style={{ fontSize: 14 }}>{n.title}</div>
-                    <div className="text-sm text-secondary">{n.desc}</div>
-                    <div className="text-xs text-tertiary">{n.time}</div>
-                  </div>
-                </div>
-              ))
-            )}
-            <button className="btn btn-outline mt-4" onClick={() => { setNotifications(notifications.map(n => ({ ...n, read: true }))); setShowNotifications(false); }} style={{ width: '100%' }}>
-              Mark all as read
-            </button>
-          </div>
-        </div>
-      )}
-      
-      <Modal isOpen={modal.open} onClose={closeModal} title={modal.title}>
-        {renderModalContent()}
-      </Modal>
-      
+      <Modal isOpen={modal.open} onClose={closeModal} title={modal.title}>{renderModalContent()}</Modal>
       <ChatBot isOpen={showChat} onClose={() => setShowChat(false)} />
-      
       {!showChat && (
-        <button 
-          onClick={() => setShowChat(true)}
-          style={{
-            position: 'fixed',
-            bottom: 24,
-            right: 24,
-            width: 60,
-            height: 60,
-            background: 'var(--purple-gradient)',
-            border: 'none',
-            borderRadius: '50%',
-            cursor: 'pointer',
-            boxShadow: '0 4px 20px rgba(83, 74, 183, 0.4)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 999
-          }}
-        >
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-            <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/>
-            <circle cx="9" cy="10" r="1.5" fill="white"/>
-            <circle cx="15" cy="10" r="1.5" fill="white"/>
-            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
-          </svg>
+        <button onClick={() => setShowChat(true)} style={{ position: 'fixed', bottom: 32, right: 32, width: 64, height: 64, background: 'var(--purple-gradient)', border: 'none', borderRadius: '50%', cursor: 'pointer', boxShadow: '0 8px 30px rgba(99, 102, 241, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
+          <Icon name="zap" size={28} />
         </button>
       )}
-      
       {toast && <div className={`toast ${toast.type}`}>{toast.message}</div>}
     </div>
   );
