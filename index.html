@@ -383,6 +383,260 @@ body {
   margin-bottom: 32px;
 }
 
+/* Login Styles */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  padding: 20px;
+}
+
+.login-card {
+  background: white;
+  border-radius: var(--radius-xl);
+  padding: 48px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+}
+
+.login-title {
+  font-family: 'Lora', serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--purple);
+  margin-bottom: 8px;
+}
+
+.login-subtitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.login-tab {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: var(--bg);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-secondary);
+}
+
+.login-tab.active {
+  background: var(--purple);
+  color: white;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.input {
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(83,74,183,0.1);
+}
+
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--purple-gradient);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 8px;
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: white;
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--bg);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  background: var(--red-light);
+  color: var(--red);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.modal-actions .btn {
+  flex: 1;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.select {
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--purple);
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 16px 24px;
+  background: var(--purple);
+  color: white;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 2000;
+  animation: slideIn 0.3s ease;
+  box-shadow: var(--shadow-lg);
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.toast.success { background: var(--green); }
+.toast.error { background: var(--red); }
+.toast.warning { background: var(--amber); }
+
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -760,6 +1014,120 @@ body {
 .badge-green { background: var(--green-light); color: var(--green); }
 .badge-red { background: var(--red-light); color: var(--red); }
 
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: white;
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--bg);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  background: var(--red-light);
+  color: var(--red);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.modal-actions .btn {
+  flex: 1;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 16px 24px;
+  background: var(--purple);
+  color: white;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 2000;
+  animation: slideIn 0.3s ease;
+  box-shadow: var(--shadow-lg);
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.toast.success { background: var(--green); }
+.toast.error { background: var(--red); }
+.toast.warning { background: var(--amber); }
+
 /* Table */
 .table {
   width: 100%;
@@ -926,6 +1294,7 @@ function Icon({ name, size = 20 }) {
     users: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
     file: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
     zap: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+    'log-out': <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
   };
   return icons[name] || null;
 }
@@ -1039,7 +1408,100 @@ function ProgressRing({ progress, size = 120, strokeWidth = 10, color = '#534AB7
   );
 }
 
-function Sidebar({ activeView, onNavigate }) {
+function Modal({ isOpen, onClose, title, children }) {
+  if (!isOpen) return null;
+  
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2 className="modal-title">{title}</h2>
+          <button className="modal-close" onClick={onClose}><Icon name="x" /></button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function Login({ onLogin }) {
+  const [isLogin, setIsLogin] = React.useState(true);
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [name, setName] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setTimeout(() => {
+      const user = {
+        name: isLogin ? email.split('@')[0] : name,
+        email: email,
+        avatar: name ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : email.slice(0, 2).toUpperCase()
+      };
+      localStorage.setItem('penny_user', JSON.stringify(user));
+      onLogin(user);
+      setLoading(false);
+    }, 800);
+  };
+
+  return (
+    <div className="login-container">
+      <div className="login-card">
+        <div className="login-header">
+          <svg className="login-logo" viewBox="0 0 64 64" fill="none">
+            <ellipse cx="32" cy="36" rx="22" ry="19" fill="#FFB6C1"/>
+            <ellipse cx="32" cy="36" rx="22" ry="19" stroke="#E87E9E" strokeWidth="3"/>
+            <circle cx="32" cy="20" r="10" fill="#FFB6C1" stroke="#E87E9E" strokeWidth="3"/>
+            <ellipse cx="24" cy="18" rx="3" ry="2" fill="#E87E9E"/>
+            <ellipse cx="40" cy="18" rx="3" ry="2" fill="#E87E9E"/>
+            <circle cx="28" cy="16" r="2" fill="#333"/>
+            <circle cx="36" cy="16" r="2" fill="#333"/>
+            <ellipse cx="32" cy="21" rx="3" ry="2" fill="#E87E9E"/>
+            <path d="M54 28 Q60 36 54 44" stroke="#E87E9E" strokeWidth="3" fill="none" strokeLinecap="round"/>
+            <path d="M16 26 Q10 22 10 30" stroke="#E87E9E" strokeWidth="3" fill="none" strokeLinecap="round"/>
+            <path d="M16 46 Q10 50 10 42" stroke="#E87E9E" strokeWidth="3" fill="none" strokeLinecap="round"/>
+            <rect x="26" cy="30" width="12" height="10" rx="2" fill="#E87E9E"/>
+          </svg>
+          <h1 className="login-title">Penny</h1>
+          <p className="login-subtitle">Your financial co-pilot for life</p>
+        </div>
+        
+        <div className="login-tabs">
+          <button className={`login-tab ${isLogin ? 'active' : ''}`} onClick={() => setIsLogin(true)}>
+            Sign In
+          </button>
+          <button className={`login-tab ${!isLogin ? 'active' : ''}`} onClick={() => setIsLogin(false)}>
+            Sign Up
+          </button>
+        </div>
+        
+        <form className="login-form" onSubmit={handleSubmit}>
+          {!isLogin && (
+            <div className="input-group">
+              <label className="input-label">Full Name</label>
+              <input type="text" className="input" placeholder="Jane Doe" value={name} onChange={e => setName(e.target.value)} required />
+            </div>
+          )}
+          <div className="input-group">
+            <label className="input-label">Email</label>
+            <input type="email" className="input" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required />
+          </div>
+          <div className="input-group">
+            <label className="input-label">Password</label>
+            <input type="password" className="input" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required />
+          </div>
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function Sidebar({ activeView, onNavigate, user, onLogout }) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
     { id: 'accounts', label: 'Accounts', icon: 'wallet' },
@@ -1055,6 +1517,8 @@ function Sidebar({ activeView, onNavigate }) {
     { id: 'achievements', label: 'Achievements', icon: 'award' },
     { id: 'settings', label: 'Settings', icon: 'settings' },
   ];
+  
+  const userInitial = user?.avatar || 'JD';
   
   return (
     <aside className="sidebar">
@@ -1103,17 +1567,20 @@ function Sidebar({ activeView, onNavigate }) {
       </div>
       
       <div className="sidebar-user">
-        <div className="sidebar-avatar">JD</div>
+        <div className="sidebar-avatar">{userInitial}</div>
         <div className="sidebar-user-info">
-          <div className="sidebar-user-name">Jane Doe</div>
-          <div className="sidebar-user-email">jane@example.com</div>
+          <div className="sidebar-user-name">{user?.name || 'Guest'}</div>
+          <div className="sidebar-user-email">{user?.email || ''}</div>
         </div>
+        <button onClick={onLogout} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--sidebar-text)', padding: '4px' }} title="Logout">
+          <Icon name="log-out" />
+        </button>
       </div>
     </aside>
   );
 }
 
-function Dashboard() {
+function Dashboard({ onQuickAction, onNavigate }) {
   const stats = [
     { label: 'Total Balance', value: '$24,563', change: '+12.5%', trend: 'up', icon: 'wallet' },
     { label: 'Income (Monthly)', value: '$5,240', change: '+8.2%', trend: 'up', icon: 'trendingup' },
@@ -1207,9 +1674,9 @@ function Dashboard() {
         </div>
         
         <div className="card">
-          <div className="card-header">
+            <div className="card-header">
             <div className="card-title">Recent Transactions</div>
-            <span className="card-action">View All</span>
+            <span className="card-action" onClick={() => onNavigate('transactions')} style={{cursor: 'pointer'}}>View All</span>
           </div>
           <div className="transaction-list">
             {transactions.map((t, i) => (
@@ -1251,7 +1718,7 @@ function Dashboard() {
         <div className="card">
           <div className="card-header">
             <div className="card-title">Monthly Budget</div>
-            <span className="card-action">Manage</span>
+            <span className="card-action" onClick={() => onNavigate('budgets')} style={{cursor: 'pointer'}}>Manage</span>
           </div>
           <BarChart data={spendingData} color="#534AB7" />
           <div className="mt-4">
@@ -1268,7 +1735,7 @@ function Dashboard() {
         <div className="card">
           <div className="card-header">
             <div className="card-title">Savings Goals</div>
-            <span className="card-action">Add New</span>
+            <span className="card-action" onClick={() => onQuickAction('goal')} style={{cursor: 'pointer'}}>Add New</span>
           </div>
           {goals.map((goal, i) => {
             const progress = Math.round((goal.current / goal.target) * 100);
@@ -1313,19 +1780,19 @@ function Dashboard() {
           <div className="card-title">Quick Actions</div>
         </div>
         <div className="quick-actions">
-          <button className="quick-action-btn">
+          <button className="quick-action-btn" onClick={() => onQuickAction('transaction')}>
             <div className="quick-action-icon"><Icon name="plus" /></div>
             <span className="quick-action-label">Add Transaction</span>
           </button>
-          <button className="quick-action-btn">
+          <button className="quick-action-btn" onClick={() => onQuickAction('goal')}>
             <div className="quick-action-icon"><Icon name="target" /></div>
             <span className="quick-action-label">New Goal</span>
           </button>
-          <button className="quick-action-btn">
+          <button className="quick-action-btn" onClick={() => onNavigate('accounts')}>
             <div className="quick-action-icon"><Icon name="transfer" /></div>
             <span className="quick-action-label">Transfer</span>
           </button>
-          <button className="quick-action-btn">
+          <button className="quick-action-btn" onClick={() => onNavigate('reports')}>
             <div className="quick-action-icon"><Icon name="file" /></div>
             <span className="quick-action-label">Export Report</span>
           </button>
@@ -1335,16 +1802,14 @@ function Dashboard() {
   );
 }
 
-function AccountsView() {
-  const accounts = [
-    { name: 'Checking Account', bank: 'Chase Bank', balance: 8456.23, type: 'checking', last4: '4582' },
-    { name: 'Savings Account', bank: 'Ally Bank', balance: 12890.00, type: 'savings', last4: '7891' },
-    { name: 'Credit Card', bank: 'Capital One', balance: -1234.56, type: 'credit', last4: '3456' },
-    { name: 'Investment Portfolio', bank: 'Fidelity', balance: 4567.89, type: 'investment', last4: '9012' },
-  ];
-  
+function AccountsView({ accounts, onAddAccount, onShowToast }) {
   const totalAssets = accounts.filter(a => a.balance > 0).reduce((sum, a) => sum + a.balance, 0);
   const totalDebt = accounts.filter(a => a.balance < 0).reduce((sum, a) => sum + Math.abs(a.balance), 0);
+  
+  const handleAddAccount = () => {
+    onShowToast('Account added successfully!', 'success');
+    onAddAccount();
+  };
   
   return (
     <div>
@@ -1374,7 +1839,7 @@ function AccountsView() {
       <div className="card">
         <div className="card-header">
           <div className="card-title">Your Accounts</div>
-          <button className="btn btn-primary btn-sm"><Icon name="plus" size={14} /> Add Account</button>
+          <button className="btn btn-primary btn-sm" onClick={handleAddAccount}><Icon name="plus" size={14} /> Add Account</button>
         </div>
         <table className="table">
           <thead>
@@ -1406,15 +1871,7 @@ function AccountsView() {
   );
 }
 
-function GoalsView() {
-  const [goals, setGoals] = useState([
-    { id: 1, name: 'Emergency Fund', target: 10000, current: 8500, monthly: 500, deadline: 'Dec 2026', color: '#534AB7' },
-    { id: 2, name: 'Dream Vacation', target: 5000, current: 2400, monthly: 300, deadline: 'Aug 2026', color: '#1D9E75' },
-    { id: 3, name: 'New Car Down Payment', target: 15000, current: 4200, monthly: 800, deadline: 'Jun 2027', color: '#BA7517' },
-    { id: 4, name: 'Home Office Setup', target: 3000, current: 2100, monthly: 200, deadline: 'Apr 2026', color: '#28A745' },
-    { id: 5, name: 'Wedding Fund', target: 20000, current: 3500, monthly: 1000, deadline: 'Oct 2027', color: '#DC3545' },
-  ]);
-  
+function GoalsView({ goals, onAddGoal, onShowToast }) {
   const totalTarget = goals.reduce((sum, g) => sum + g.target, 0);
   const totalCurrent = goals.reduce((sum, g) => sum + g.current, 0);
   
@@ -1439,7 +1896,7 @@ function GoalsView() {
       <div className="card">
         <div className="card-header">
           <div className="card-title">All Goals</div>
-          <button className="btn btn-primary btn-sm"><Icon name="plus" size={14} /> New Goal</button>
+          <button className="btn btn-primary btn-sm" onClick={onAddGoal}><Icon name="plus" size={14} /> New Goal</button>
         </div>
         <div className="grid grid-cols-2 gap-4">
           {goals.map((goal) => {
@@ -1581,20 +2038,8 @@ function InsightsView() {
   );
 }
 
-function TransactionsView() {
+function TransactionsView({ transactions, onAddTransaction, onShowToast }) {
   const [filter, setFilter] = useState('all');
-  const transactions = [
-    { id: 1, name: 'Netflix', date: '2026-03-21', amount: -15.99, category: 'Entertainment', type: 'expense' },
-    { id: 2, name: 'Salary', date: '2026-03-20', amount: 3500, category: 'Income', type: 'income' },
-    { id: 3, name: 'Whole Foods', date: '2026-03-20', amount: -87.32, category: 'Food', type: 'expense' },
-    { id: 4, name: 'Uber', date: '2026-03-19', amount: -24.50, category: 'Transport', type: 'expense' },
-    { id: 5, name: 'Amazon', date: '2026-03-18', amount: -156.00, category: 'Shopping', type: 'expense' },
-    { id: 6, name: 'Electric Bill', date: '2026-03-17', amount: -89.00, category: 'Utilities', type: 'expense' },
-    { id: 7, name: 'Freelance', date: '2026-03-15', amount: 800, category: 'Income', type: 'income' },
-    { id: 8, name: 'Grocery Store', date: '2026-03-15', amount: -65.40, category: 'Food', type: 'expense' },
-    { id: 9, name: 'Gas Station', date: '2026-03-14', amount: -45.00, category: 'Transport', type: 'expense' },
-    { id: 10, name: 'Restaurant', date: '2026-03-13', amount: -52.80, category: 'Food', type: 'expense' },
-  ];
   
   const filtered = filter === 'all' ? transactions : transactions.filter(t => t.type === filter);
   
@@ -1607,15 +2052,15 @@ function TransactionsView() {
         <div className="grid grid-cols-3 gap-6">
           <div className="text-center">
             <div className="text-sm text-secondary">Total Income</div>
-            <div className="font-bold text-green" style={{ fontSize: 24 }}>$4,300.00</div>
+            <div className="font-bold text-green" style={{ fontSize: 24 }}>${transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0).toLocaleString()}</div>
           </div>
           <div className="text-center">
             <div className="text-sm text-secondary">Total Expenses</div>
-            <div className="font-bold text-red" style={{ fontSize: 24 }}>$535.01</div>
+            <div className="font-bold text-red" style={{ fontSize: 24 }}>${Math.abs(transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)).toLocaleString()}</div>
           </div>
           <div className="text-center">
             <div className="text-sm text-secondary">Net</div>
-            <div className="font-bold text-purple" style={{ fontSize: 24 }}>$3,764.99</div>
+            <div className="font-bold text-purple" style={{ fontSize: 24 }}>${(transactions.reduce((sum, t) => sum + t.amount, 0)).toLocaleString()}</div>
           </div>
         </div>
       </div>
@@ -1627,7 +2072,7 @@ function TransactionsView() {
             <div className={`tab ${filter === 'income' ? 'active' : ''}`} onClick={() => setFilter('income')}>Income</div>
             <div className={`tab ${filter === 'expense' ? 'active' : ''}`} onClick={() => setFilter('expense')}>Expenses</div>
           </div>
-          <button className="btn btn-primary btn-sm"><Icon name="plus" size={14} /> Add Transaction</button>
+          <button className="btn btn-primary btn-sm" onClick={onAddTransaction}><Icon name="plus" size={14} /> Add Transaction</button>
         </div>
         <table className="table">
           <thead>
@@ -1658,7 +2103,7 @@ function TransactionsView() {
   );
 }
 
-function BudgetsView() {
+function BudgetsView({ onEditBudgets, onShowToast }) {
   const [budgets] = useState([
     { category: 'Housing', budget: 1500, spent: 1200, color: '#534AB7' },
     { category: 'Food & Dining', budget: 600, spent: 580, color: '#1D9E75' },
@@ -1697,7 +2142,7 @@ function BudgetsView() {
       <div className="card">
         <div className="card-header">
           <div className="card-title">Budget Categories</div>
-          <button className="btn btn-outline btn-sm">Edit Budgets</button>
+          <button className="btn btn-outline btn-sm" onClick={onEditBudgets}>Edit Budgets</button>
         </div>
         {budgets.map((budget, i) => {
           const percent = Math.round((budget.spent / budget.budget) * 100);
@@ -1909,7 +2354,30 @@ function ReportsView() {
   );
 }
 
-function SettingsView() {
+function SettingsView({ onShowToast }) {
+  const handleSave = () => {
+    onShowToast('Settings saved successfully!', 'success');
+  };
+  
+  const handleExport = () => {
+    const data = JSON.stringify({ exported: new Date().toISOString(), message: 'Your financial data export' }, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'penny-export.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    onShowToast('Data exported successfully!', 'success');
+  };
+  
+  const handleDelete = () => {
+    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+      localStorage.clear();
+      window.location.reload();
+    }
+  };
+  
   return (
     <div>
       <div className="card mb-6">
@@ -1938,7 +2406,7 @@ function SettingsView() {
             </select>
           </div>
         </div>
-        <button className="btn btn-primary mt-4">Save Changes</button>
+        <button className="btn btn-primary mt-4" onClick={handleSave}>Save Changes</button>
       </div>
       
       <div className="card mb-6">
@@ -1979,8 +2447,8 @@ function SettingsView() {
           <div className="card-title">Data Management</div>
         </div>
         <div className="flex gap-4">
-          <button className="btn btn-outline"><Icon name="file" size={14} /> Export Data</button>
-          <button className="btn btn-outline" style={{ borderColor: 'var(--red)', color: 'var(--red)' }}>Delete Account</button>
+          <button className="btn btn-outline" onClick={handleExport}><Icon name="file" size={14} /> Export Data</button>
+          <button className="btn btn-outline" style={{ borderColor: 'var(--red)', color: 'var(--red)' }} onClick={handleDelete}>Delete Account</button>
         </div>
       </div>
     </div>
@@ -2010,8 +2478,179 @@ function Header({ title }) {
   );
 }
 
+function AccountForm({ onSubmit, onCancel }) {
+  const [form, setForm] = React.useState({ name: '', bank: '', balance: 0, type: 'checking' });
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(form);
+  };
+  
+  return (
+    <form className="modal-form" onSubmit={handleSubmit}>
+      <div className="input-group">
+        <label className="input-label">Account Name</label>
+        <input type="text" className="input" placeholder="My Checking Account" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
+      </div>
+      <div className="input-group">
+        <label className="input-label">Bank Name</label>
+        <input type="text" className="input" placeholder="Chase Bank" value={form.bank} onChange={e => setForm({...form, bank: e.target.value})} required />
+      </div>
+      <div className="form-row">
+        <div className="input-group">
+          <label className="input-label">Account Type</label>
+          <select className="input" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
+            <option value="checking">Checking</option>
+            <option value="savings">Savings</option>
+            <option value="credit">Credit Card</option>
+            <option value="investment">Investment</option>
+          </select>
+        </div>
+        <div className="input-group">
+          <label className="input-label">Current Balance</label>
+          <input type="number" className="input" placeholder="0.00" step="0.01" value={form.balance} onChange={e => setForm({...form, balance: parseFloat(e.target.value) || 0})} />
+        </div>
+      </div>
+      <div className="modal-actions">
+        <button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button>
+        <button type="submit" className="btn btn-primary">Add Account</button>
+      </div>
+    </form>
+  );
+}
+
+function TransactionForm({ onSubmit, onCancel }) {
+  const [form, setForm] = React.useState({ name: '', amount: 0, category: 'Food', type: 'expense' });
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const amount = form.type === 'income' ? Math.abs(form.amount) : -Math.abs(form.amount);
+    onSubmit({ ...form, amount });
+  };
+  
+  return (
+    <form className="modal-form" onSubmit={handleSubmit}>
+      <div className="input-group">
+        <label className="input-label">Transaction Name</label>
+        <input type="text" className="input" placeholder="Grocery Store" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
+      </div>
+      <div className="form-row">
+        <div className="input-group">
+          <label className="input-label">Type</label>
+          <select className="input" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+        <div className="input-group">
+          <label className="input-label">Amount ($)</label>
+          <input type="number" className="input" placeholder="0.00" step="0.01" value={form.amount} onChange={e => setForm({...form, amount: parseFloat(e.target.value) || 0})} required />
+        </div>
+      </div>
+      <div className="input-group">
+        <label className="input-label">Category</label>
+        <select className="input" value={form.category} onChange={e => setForm({...form, category: e.target.value})}>
+          <option value="Food">Food & Dining</option>
+          <option value="Transport">Transportation</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Utilities">Utilities</option>
+          <option value="Health">Health</option>
+          <option value="Housing">Housing</option>
+          <option value="Income">Income</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div className="modal-actions">
+        <button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button>
+        <button type="submit" className="btn btn-primary">Add Transaction</button>
+      </div>
+    </form>
+  );
+}
+
+function GoalForm({ onSubmit, onCancel }) {
+  const [form, setForm] = React.useState({ name: '', target: 0, monthly: 0, deadline: '', color: '#534AB7' });
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(form);
+  };
+  
+  return (
+    <form className="modal-form" onSubmit={handleSubmit}>
+      <div className="input-group">
+        <label className="input-label">Goal Name</label>
+        <input type="text" className="input" placeholder="Dream Vacation" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
+      </div>
+      <div className="form-row">
+        <div className="input-group">
+          <label className="input-label">Target Amount ($)</label>
+          <input type="number" className="input" placeholder="5000" step="1" value={form.target} onChange={e => setForm({...form, target: parseInt(e.target.value) || 0})} required />
+        </div>
+        <div className="input-group">
+          <label className="input-label">Monthly Contribution ($)</label>
+          <input type="number" className="input" placeholder="300" step="1" value={form.monthly} onChange={e => setForm({...form, monthly: parseInt(e.target.value) || 0})} required />
+        </div>
+      </div>
+      <div className="input-group">
+        <label className="input-label">Target Date</label>
+        <input type="text" className="input" placeholder="Dec 2026" value={form.deadline} onChange={e => setForm({...form, deadline: e.target.value})} required />
+      </div>
+      <div className="input-group">
+        <label className="input-label">Color</label>
+        <div className="flex gap-2">
+          {['#534AB7', '#1D9E75', '#BA7517', '#DC3545', '#28A745', '#6c757d'].map(color => (
+            <div key={color} onClick={() => setForm({...form, color})} style={{ width: 32, height: 32, borderRadius: 8, background: color, cursor: 'pointer', border: form.color === color ? '3px solid #333' : 'none' }} />
+          ))}
+        </div>
+      </div>
+      <div className="modal-actions">
+        <button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button>
+        <button type="submit" className="btn btn-primary">Create Goal</button>
+      </div>
+    </form>
+  );
+}
+
 function App() {
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('penny_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+  
   const [activeView, setActiveView] = useState('dashboard');
+  const [toast, setToast] = React.useState(null);
+  
+  const [accounts, setAccounts] = useState([
+    { id: 1, name: 'Checking Account', bank: 'Chase Bank', balance: 8456.23, type: 'checking', last4: '4582' },
+    { id: 2, name: 'Savings Account', bank: 'Ally Bank', balance: 12890.00, type: 'savings', last4: '7891' },
+    { id: 3, name: 'Credit Card', bank: 'Capital One', balance: -1234.56, type: 'credit', last4: '3456' },
+    { id: 4, name: 'Investment Portfolio', bank: 'Fidelity', balance: 4567.89, type: 'investment', last4: '9012' },
+  ]);
+  
+  const [transactions, setTransactions] = useState([
+    { id: 1, name: 'Netflix', date: '2026-03-21', amount: -15.99, category: 'Entertainment', type: 'expense' },
+    { id: 2, name: 'Salary', date: '2026-03-20', amount: 3500, category: 'Income', type: 'income' },
+    { id: 3, name: 'Whole Foods', date: '2026-03-20', amount: -87.32, category: 'Food', type: 'expense' },
+    { id: 4, name: 'Uber', date: '2026-03-19', amount: -24.50, category: 'Transport', type: 'expense' },
+    { id: 5, name: 'Amazon', date: '2026-03-18', amount: -156.00, category: 'Shopping', type: 'expense' },
+    { id: 6, name: 'Electric Bill', date: '2026-03-17', amount: -89.00, category: 'Utilities', type: 'expense' },
+    { id: 7, name: 'Freelance', date: '2026-03-15', amount: 800, category: 'Income', type: 'income' },
+    { id: 8, name: 'Grocery Store', date: '2026-03-15', amount: -65.40, category: 'Food', type: 'expense' },
+    { id: 9, name: 'Gas Station', date: '2026-03-14', amount: -45.00, category: 'Transport', type: 'expense' },
+    { id: 10, name: 'Restaurant', date: '2026-03-13', amount: -52.80, category: 'Food', type: 'expense' },
+  ]);
+  
+  const [goals, setGoals] = useState([
+    { id: 1, name: 'Emergency Fund', target: 10000, current: 8500, monthly: 500, deadline: 'Dec 2026', color: '#534AB7' },
+    { id: 2, name: 'Dream Vacation', target: 5000, current: 2400, monthly: 300, deadline: 'Aug 2026', color: '#1D9E75' },
+    { id: 3, name: 'New Car Down Payment', target: 15000, current: 4200, monthly: 800, deadline: 'Jun 2027', color: '#BA7517' },
+    { id: 4, name: 'Home Office Setup', target: 3000, current: 2100, monthly: 200, deadline: 'Apr 2026', color: '#28A745' },
+    { id: 5, name: 'Wedding Fund', target: 20000, current: 3500, monthly: 1000, deadline: 'Oct 2027', color: '#DC3545' },
+  ]);
+  
+  const [modal, setModal] = React.useState({ open: false, type: null, title: '' });
   
   const viewTitles = {
     dashboard: 'Dashboard',
@@ -2026,31 +2665,107 @@ function App() {
     settings: 'Settings',
   };
   
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+  
+  const handleLogin = (userData) => {
+    setUser(userData);
+  };
+  
+  const handleLogout = () => {
+    localStorage.removeItem('penny_user');
+    setUser(null);
+  };
+  
+  const handleQuickAction = (action) => {
+    setModal({ open: true, type: action });
+  };
+  
+  const handleAddAccount = () => {
+    setModal({ open: true, type: 'account', title: 'Add Account' });
+  };
+  
+  const handleAddTransaction = () => {
+    setModal({ open: true, type: 'transaction', title: 'Add Transaction' });
+  };
+  
+  const handleAddGoal = () => {
+    setModal({ open: true, type: 'goal', title: 'New Goal' });
+  };
+  
+  const handleEditBudgets = () => {
+    showToast('Budget editing coming soon!', 'info');
+  };
+  
+  const closeModal = () => {
+    setModal({ open: false, type: null, title: '' });
+  };
+  
+  const handleAddItem = (type, data) => {
+    if (type === 'account') {
+      const newAccount = { ...data, id: Date.now(), last4: data.last4 || Math.floor(1000 + Math.random() * 9000).toString() };
+      setAccounts([...accounts, newAccount]);
+      showToast('Account added successfully!', 'success');
+    } else if (type === 'transaction') {
+      const newTransaction = { ...data, id: Date.now(), date: new Date().toISOString().split('T')[0] };
+      setTransactions([newTransaction, ...transactions]);
+      showToast('Transaction added!', 'success');
+    } else if (type === 'goal') {
+      const newGoal = { ...data, id: Date.now(), current: 0, color: data.color || '#534AB7' };
+      setGoals([...goals, newGoal]);
+      showToast('Goal created!', 'success');
+    }
+    closeModal();
+  };
+  
+  const renderModalContent = () => {
+    switch (modal.type) {
+      case 'account':
+        return <AccountForm onSubmit={(data) => handleAddItem('account', data)} onCancel={closeModal} />;
+      case 'transaction':
+        return <TransactionForm onSubmit={(data) => handleAddItem('transaction', data)} onCancel={closeModal} />;
+      case 'goal':
+        return <GoalForm onSubmit={(data) => handleAddItem('goal', data)} onCancel={closeModal} />;
+      default:
+        return null;
+    }
+  };
+  
   const renderView = () => {
     switch (activeView) {
-      case 'dashboard': return <Dashboard />;
-      case 'accounts': return <AccountsView />;
-      case 'transactions': return <TransactionsView />;
-      case 'budgets': return <BudgetsView />;
-      case 'goals': return <GoalsView />;
+      case 'dashboard': return <Dashboard onQuickAction={handleQuickAction} onNavigate={setActiveView} />;
+      case 'accounts': return <AccountsView accounts={accounts} onAddAccount={handleAddAccount} onShowToast={showToast} />;
+      case 'transactions': return <TransactionsView transactions={transactions} onAddTransaction={handleAddTransaction} onShowToast={showToast} />;
+      case 'budgets': return <BudgetsView onEditBudgets={handleEditBudgets} onShowToast={showToast} />;
+      case 'goals': return <GoalsView goals={goals} onAddGoal={handleAddGoal} onShowToast={showToast} />;
       case 'calendar': return <CalendarView />;
       case 'reports': return <ReportsView />;
       case 'insights': return <InsightsView />;
       case 'achievements': return <AchievementsView />;
-      case 'settings': return <SettingsView />;
-      default: return <Dashboard />;
+      case 'settings': return <SettingsView onShowToast={showToast} />;
+      default: return <Dashboard onQuickAction={handleQuickAction} onNavigate={setActiveView} />;
     }
   };
   
+  if (!user) {
+    return <Login onLogin={handleLogin} />;
+  }
+  
   return (
     <div className="app-layout">
-      <Sidebar activeView={activeView} onNavigate={setActiveView} />
+      <Sidebar activeView={activeView} onNavigate={setActiveView} user={user} onLogout={handleLogout} />
       <main className="main-content">
         <Header title={viewTitles[activeView]} />
         <div className="page-content">
           {renderView()}
         </div>
       </main>
+      <Modal isOpen={modal.open} onClose={closeModal} title={modal.title}>
+        {renderModalContent()}
+      </Modal>
+      {toast && <div className={`toast ${toast.type}`}>{toast.message}</div>}
     </div>
   );
 }
