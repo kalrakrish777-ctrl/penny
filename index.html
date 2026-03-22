@@ -1390,24 +1390,28 @@ function ChatBot({ isOpen, onClose }) {
   ]);
   const [input, setInput] = React.useState('');
   
-  const responses = {
-    'budget': "A good rule of thumb is the 50/30/20 rule: 50% for needs, 30% for wants, and 20% for savings. Want me to help you set up a budget?",
-    'save': "Great question! Try to save at least 20% of your income. Start small - even $50/month adds up over time!",
-    'invest': "For beginners, I'd recommend starting with low-cost index funds. They offer diversification and historically good returns.",
-    'debt': "Prioritize paying off high-interest debt first (like credit cards). Consider the avalanche or snowball method.",
-    'emergency': "Aim for 3-6 months of expenses in an emergency fund. Start with $1,000 as a mini-goal.",
-    'credit': "Check your credit score regularly, pay bills on time, and keep credit utilization below 30%.",
-    'default': "That's a great question! I can help with budgeting, saving, investing, debt management, and more. What would you like to know?"
+  const getResponse = (text) => {
+    const lower = text.toLowerCase();
+    if (lower.includes('budget')) return "A good rule of thumb is the 50/30/20 rule: 50% for needs, 30% for wants, and 20% for savings. Want me to help you set up a budget?";
+    if (lower.includes('save') || lower.includes('saving')) return "Great question! Try to save at least 20% of your income. Start small - even $50/month adds up over time!";
+    if (lower.includes('invest')) return "For beginners, I'd recommend starting with low-cost index funds. They offer diversification and historically good returns.";
+    if (lower.includes('debt')) return "Prioritize paying off high-interest debt first (like credit cards). Consider the avalanche or snowball method.";
+    if (lower.includes('emergency')) return "Aim for 3-6 months of expenses in an emergency fund. Start with $1,000 as a mini-goal.";
+    if (lower.includes('credit')) return "Check your credit score regularly, pay bills on time, and keep credit utilization below 30%.";
+    if (lower.includes('tip') || lower.includes('advice')) return "Here are my top tips: 1) Track every expense 2) Set up automatic savings 3) Pay yourself first 4) Avoid lifestyle inflation. Need more specific advice?";
+    if (lower.includes('goal')) return "Setting financial goals? Try SMART goals - Specific, Measurable, Achievable, Relevant, and Time-bound. What's your main financial goal right now?";
+    if (lower.includes('retire') || lower.includes('retirement')) return "For retirement, aim to save 15-20% of your income. Start with your 401k employer match, then max out a Roth IRA. The key is to start early!";
+    if (lower.includes('hello') || lower.includes('hi ') || lower === 'hi') return "Hello! I'm Penny AI, your financial assistant. Ask me anything about budgeting, saving, investing, or managing your money!";
+    return "That's a great question! I can help with budgeting, saving, investing, debt management, and more. What would you like to know?";
   };
   
   const handleSend = () => {
     if (!input.trim()) return;
     
     const userMsg = { type: 'user', text: input };
-    const botResponse = responses[input.toLowerCase()] || responses['default'];
-    const botMsg = { type: 'bot', text: botResponse };
+    const botMsg = { type: 'bot', text: getResponse(input) };
     
-    setMessages([...messages, userMsg, botMsg]);
+    setMessages(prev => [...prev, userMsg, botMsg]);
     setInput('');
   };
   
