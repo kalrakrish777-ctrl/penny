@@ -2103,18 +2103,7 @@ function TransactionsView({ transactions, onAddTransaction, onShowToast }) {
   );
 }
 
-function BudgetsView({ onEditBudgets, onShowToast }) {
-  const [budgets] = useState([
-    { category: 'Housing', budget: 1500, spent: 1200, color: '#534AB7' },
-    { category: 'Food & Dining', budget: 600, spent: 580, color: '#1D9E75' },
-    { category: 'Transportation', budget: 400, spent: 340, color: '#BA7517' },
-    { category: 'Entertainment', budget: 200, spent: 180, color: '#DC3545' },
-    { category: 'Shopping', budget: 300, spent: 250, color: '#28A745' },
-    { category: 'Utilities', budget: 250, spent: 180, color: '#6c757d' },
-    { category: 'Health', budget: 150, spent: 90, color: '#e83e8c' },
-    { category: 'Personal', budget: 200, spent: 120, color: '#17a2b8' },
-  ]);
-  
+function BudgetsView({ budgets, onEditBudgets, onShowToast }) {
   const totalBudget = budgets.reduce((sum, b) => sum + b.budget, 0);
   const totalSpent = budgets.reduce((sum, b) => sum + b.spent, 0);
   
@@ -2124,12 +2113,12 @@ function BudgetsView({ onEditBudgets, onShowToast }) {
         <div className="card-header">
           <div>
             <div className="card-title">March 2026 Budget</div>
-            <div className="card-subtitle">${totalSpent} of ${totalBudget} spent</div>
+            <div className="card-subtitle">${totalSpent.toLocaleString()} of ${totalBudget.toLocaleString()} spent</div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
               <div className="text-sm text-secondary">Remaining</div>
-              <div className="font-bold" style={{ fontSize: 20 }}>${totalBudget - totalSpent}</div>
+              <div className="font-bold" style={{ fontSize: 20 }}>${(totalBudget - totalSpent).toLocaleString()}</div>
             </div>
             <ProgressRing progress={Math.round((totalSpent / totalBudget) * 100)} size={70} color="#534AB7" />
           </div>
@@ -2171,15 +2160,12 @@ function BudgetsView({ onEditBudgets, onShowToast }) {
   );
 }
 
-function CalendarView() {
+function CalendarView({ events, onAddEvent }) {
   const [currentDate, setCurrentDate] = useState(new Date(2026, 2, 21));
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const events = {
-    '2026-03-15': 'Rent Due',
-    '2026-03-20': 'Salary',
-    '2026-03-25': 'Credit Card Payment',
-    '2026-03-28': 'Subscription Renewals',
-  };
+  
+  const eventDates = {};
+  events.forEach(e => { eventDates[e.date] = e; });
   
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -2218,7 +2204,7 @@ function CalendarView() {
         {days.map(day => <div key={day} className="calendar-day-header">{day}</div>)}
         {calendarDays.map((d, i) => {
           const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`;
-          const hasEvent = events[dateStr];
+          const hasEvent = eventDates[dateStr];
           const isToday = d.day === 21 && !d.otherMonth;
           return (
             <div key={i} className={`calendar-day ${d.otherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${hasEvent ? 'has-event' : ''}`}>
@@ -2227,18 +2213,26 @@ function CalendarView() {
           );
         })}
       </div>
-      <div className="mt-4">
-        <div className="card-title mb-2">Upcoming Events</div>
-        {Object.entries(events).map(([date, event]) => (
-          <div key={date} className="flex justify-between items-center" style={{ padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
-            <div>
-              <div className="font-bold">{event}</div>
-              <div className="text-sm text-secondary">{date}</div>
-            </div>
-            <span className="badge badge-purple">{event === 'Salary' ? 'Income' : 'Bill'}</span>
-          </div>
-        ))}
+      <div className="flex justify-between items-center mt-4">
+        <div className="card-title mb-0">Upcoming Events</div>
+        <button className="btn btn-primary btn-sm" onClick={onAddEvent}><Icon name="plus" size={14} /> Add Event</button>
       </div>
+      {events.length === 0 ? (
+        <div className="text-center text-secondary" style={{ padding: '24px' }}>No events yet. Add your first event!</div>
+      ) : (
+        events.map(e => (
+          <div key={e.id} className="flex justify-between items-center" style={{ padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
+            <div>
+              <div className="font-bold">{e.title}</div>
+              <div className="text-sm text-secondary">{e.date}</div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span style={{ color: e.color, fontWeight: 600 }}>${e.amount.toLocaleString()}</span>
+              <span className={`badge ${e.type === 'income' ? 'badge-green' : 'badge-red'}`}>{e.type === 'income' ? 'Income' : 'Expense'}</span>
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 }
@@ -2294,7 +2288,7 @@ function AchievementsView() {
   );
 }
 
-function ReportsView() {
+function ReportsView({ onExport, onShowToast }) {
   const monthlyReport = [
     { month: 'Jan', income: 5200, expenses: 3100, savings: 2100 },
     { month: 'Feb', income: 5200, expenses: 2950, savings: 2250 },
@@ -2306,7 +2300,7 @@ function ReportsView() {
       <div className="card mb-6">
         <div className="card-header">
           <div className="card-title">Financial Report</div>
-          <button className="btn btn-outline btn-sm"><Icon name="file" size={14} /> Export PDF</button>
+          <button className="btn btn-primary btn-sm" onClick={onExport}><Icon name="file" size={14} /> Export Data (JSON)</button>
         </div>
         <div className="grid grid-cols-4 gap-4 mb-6">
           <div className="text-center p-4" style={{ background: 'var(--bg)', borderRadius: 12 }}>
@@ -2354,21 +2348,37 @@ function ReportsView() {
   );
 }
 
-function SettingsView({ onShowToast }) {
+function Toggle({ enabled, onToggle }) {
+  return (
+    <div 
+      onClick={onToggle}
+      style={{ 
+        width: 50, 
+        height: 28, 
+        background: enabled ? 'var(--purple)' : '#ccc', 
+        borderRadius: 14, 
+        position: 'relative', 
+        cursor: 'pointer',
+        transition: 'background 0.2s'
+      }}>
+      <div style={{ 
+        width: 24, 
+        height: 24, 
+        background: 'white', 
+        borderRadius: 12, 
+        position: 'absolute', 
+        top: 2, 
+        right: enabled ? 2 : 'auto',
+        left: enabled ? 'auto' : 2,
+        transition: 'all 0.2s'
+      }}></div>
+    </div>
+  );
+}
+
+function SettingsView({ darkMode, onToggleDarkMode, emailNotifications, onToggleEmail, budgetAlerts, onToggleBudget, onShowToast }) {
   const handleSave = () => {
     onShowToast('Settings saved successfully!', 'success');
-  };
-  
-  const handleExport = () => {
-    const data = JSON.stringify({ exported: new Date().toISOString(), message: 'Your financial data export' }, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'penny-export.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    onShowToast('Data exported successfully!', 'success');
   };
   
   const handleDelete = () => {
@@ -2418,27 +2428,21 @@ function SettingsView({ onShowToast }) {
             <div className="font-bold">Email Notifications</div>
             <div className="text-sm text-secondary">Receive weekly financial summaries</div>
           </div>
-          <div style={{ width: 50, height: 28, background: 'var(--purple)', borderRadius: 14, position: 'relative', cursor: 'pointer' }}>
-            <div style={{ width: 24, height: 24, background: 'white', borderRadius: 12, position: 'absolute', top: 2, right: 2 }}></div>
-          </div>
+          <Toggle enabled={emailNotifications} onToggle={onToggleEmail} />
         </div>
         <div className="flex justify-between items-center" style={{ padding: '16px 0', borderBottom: '1px solid var(--border)' }}>
           <div>
             <div className="font-bold">Budget Alerts</div>
             <div className="text-sm text-secondary">Get notified when nearing budget limits</div>
           </div>
-          <div style={{ width: 50, height: 28, background: 'var(--purple)', borderRadius: 14, position: 'relative', cursor: 'pointer' }}>
-            <div style={{ width: 24, height: 24, background: 'white', borderRadius: 12, position: 'absolute', top: 2, right: 2 }}></div>
-          </div>
+          <Toggle enabled={budgetAlerts} onToggle={onToggleBudget} />
         </div>
         <div className="flex justify-between items-center" style={{ padding: '16px 0' }}>
           <div>
             <div className="font-bold">Dark Mode</div>
             <div className="text-sm text-secondary">Use dark theme for the app</div>
           </div>
-          <div style={{ width: 50, height: 28, background: '#ccc', borderRadius: 14, position: 'relative', cursor: 'pointer' }}>
-            <div style={{ width: 24, height: 24, background: 'white', borderRadius: 12, position: 'absolute', top: 2, left: 2 }}></div>
-          </div>
+          <Toggle enabled={darkMode} onToggle={onToggleDarkMode} />
         </div>
       </div>
       
@@ -2447,7 +2451,7 @@ function SettingsView({ onShowToast }) {
           <div className="card-title">Data Management</div>
         </div>
         <div className="flex gap-4">
-          <button className="btn btn-outline" onClick={handleExport}><Icon name="file" size={14} /> Export Data</button>
+          <button className="btn btn-outline" onClick={() => onShowToast('Use the Reports page to export data', 'info')}><Icon name="file" size={14} /> Export Data</button>
           <button className="btn btn-outline" style={{ borderColor: 'var(--red)', color: 'var(--red)' }} onClick={handleDelete}>Delete Account</button>
         </div>
       </div>
@@ -2455,7 +2459,9 @@ function SettingsView({ onShowToast }) {
   );
 }
 
-function Header({ title }) {
+function Header({ title, notifications, onToggleNotifications }) {
+  const unreadCount = notifications.filter(n => !n.read).length;
+  
   return (
     <header className="header">
       <div className="header-left">
@@ -2469,9 +2475,9 @@ function Header({ title }) {
           <span className="header-search-icon"><Icon name="search" size={16} /></span>
           <input type="text" placeholder="Search transactions, goals..." />
         </div>
-        <button className="header-btn">
+        <button className="header-btn" onClick={onToggleNotifications} style={{ position: 'relative' }}>
           <Icon name="bell" size={18} />
-          <span className="notification-dot"></span>
+          {unreadCount > 0 && <span className="notification-dot"></span>}
         </button>
       </div>
     </header>
@@ -2613,6 +2619,96 @@ function GoalForm({ onSubmit, onCancel }) {
   );
 }
 
+function BudgetForm({ budgets, onSubmit, onCancel }) {
+  const [form, setForm] = React.useState(budgets);
+  
+  const handleChange = (index, field, value) => {
+    const newBudgets = [...form];
+    newBudgets[index] = { ...newBudgets[index], [field]: value };
+    setForm(newBudgets);
+  };
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(form);
+  };
+  
+  return (
+    <form className="modal-form" onSubmit={handleSubmit} style={{ maxHeight: '400px', overflowY: 'auto' }}>
+      {form.map((budget, i) => (
+        <div key={i} className="form-row" style={{ alignItems: 'center', marginBottom: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+            <div style={{ width: 12, height: 12, borderRadius: 3, background: budget.color }}></div>
+            <span style={{ fontSize: '14px', fontWeight: 500 }}>{budget.category}</span>
+          </div>
+          <div className="input-group" style={{ marginBottom: 0, flex: 1 }}>
+            <input 
+              type="number" 
+              className="input" 
+              value={budget.budget} 
+              onChange={e => handleChange(i, 'budget', parseInt(e.target.value) || 0)}
+              style={{ textAlign: 'right' }}
+            />
+          </div>
+        </div>
+      ))}
+      <div className="modal-actions">
+        <button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button>
+        <button type="submit" className="btn btn-primary">Save Budgets</button>
+      </div>
+    </form>
+  );
+}
+
+function CalendarForm({ onSubmit, onCancel }) {
+  const [form, setForm] = React.useState({ title: '', date: '', amount: 0, type: 'expense', color: '#DC3545' });
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(form);
+  };
+  
+  return (
+    <form className="modal-form" onSubmit={handleSubmit}>
+      <div className="input-group">
+        <label className="input-label">Event Title</label>
+        <input type="text" className="input" placeholder="Rent Payment" value={form.title} onChange={e => setForm({...form, title: e.target.value})} required />
+      </div>
+      <div className="form-row">
+        <div className="input-group">
+          <label className="input-label">Date</label>
+          <input type="date" className="input" value={form.date} onChange={e => setForm({...form, date: e.target.value})} required />
+        </div>
+        <div className="input-group">
+          <label className="input-label">Amount ($)</label>
+          <input type="number" className="input" placeholder="0.00" step="0.01" value={form.amount} onChange={e => setForm({...form, amount: parseFloat(e.target.value) || 0})} required />
+        </div>
+      </div>
+      <div className="form-row">
+        <div className="input-group">
+          <label className="input-label">Type</label>
+          <select className="input" value={form.type} onChange={e => setForm({...form, type: e.target.value, color: e.target.value === 'income' ? '#28A745' : '#DC3545'})}>
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+        <div className="input-group">
+          <label className="input-label">Color</label>
+          <div className="flex gap-2">
+            <div onClick={() => setForm({...form, color: '#DC3545'})} style={{ width: 32, height: 32, borderRadius: 8, background: '#DC3545', cursor: 'pointer', border: form.color === '#DC3545' ? '3px solid #333' : 'none' }} />
+            <div onClick={() => setForm({...form, color: '#28A745'})} style={{ width: 32, height: 32, borderRadius: 8, background: '#28A745', cursor: 'pointer', border: form.color === '#28A745' ? '3px solid #333' : 'none' }} />
+            <div onClick={() => setForm({...form, color: '#534AB7'})} style={{ width: 32, height: 32, borderRadius: 8, background: '#534AB7', cursor: 'pointer', border: form.color === '#534AB7' ? '3px solid #333' : 'none' }} />
+          </div>
+        </div>
+      </div>
+      <div className="modal-actions">
+        <button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button>
+        <button type="submit" className="btn btn-primary">Add Event</button>
+      </div>
+    </form>
+  );
+}
+
 function App() {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('penny_user');
@@ -2679,8 +2775,55 @@ function App() {
     setUser(null);
   };
   
+  const [darkMode, setDarkMode] = React.useState(() => localStorage.getItem('penny_darkMode') === 'true');
+  const [notifications, setNotifications] = React.useState([
+    { id: 1, type: 'warning', title: 'Subscription Renewal', desc: 'Spotify annual plan renews in 3 days', time: '2h ago', read: false },
+    { id: 2, type: 'info', title: 'Bill Due Soon', desc: 'Credit card payment due in 5 days', time: '5h ago', read: false },
+    { id: 3, type: 'success', title: 'Goal Milestone', desc: 'You reached 85% of your Emergency Fund goal!', time: '1d ago', read: true },
+  ]);
+  const [showNotifications, setShowNotifications] = React.useState(false);
+  const [emailNotifications, setEmailNotifications] = React.useState(true);
+  const [budgetAlerts, setBudgetAlerts] = React.useState(true);
+  const [budgets, setBudgets] = React.useState([
+    { category: 'Housing', budget: 1500, spent: 1200, color: '#534AB7' },
+    { category: 'Food & Dining', budget: 600, spent: 580, color: '#1D9E75' },
+    { category: 'Transportation', budget: 400, spent: 340, color: '#BA7517' },
+    { category: 'Entertainment', budget: 200, spent: 180, color: '#DC3545' },
+    { category: 'Shopping', budget: 300, spent: 250, color: '#28A745' },
+    { category: 'Utilities', budget: 250, spent: 180, color: '#6c757d' },
+    { category: 'Health', budget: 150, spent: 90, color: '#e83e8c' },
+    { category: 'Personal', budget: 200, spent: 120, color: '#17a2b8' },
+  ]);
+  const [calendarEvents, setCalendarEvents] = React.useState([
+    { id: 1, title: 'Rent Payment', date: '2026-03-25', amount: 1500, type: 'expense', color: '#DC3545' },
+    { id: 2, title: 'Paycheck', date: '2026-03-28', amount: 3500, type: 'income', color: '#28A745' },
+    { id: 3, title: 'Netflix Due', date: '2026-03-30', amount: 15.99, type: 'expense', color: '#534AB7' },
+  ]);
+
+  React.useEffect(() => {
+    if (darkMode) {
+      document.documentElement.style.setProperty('--bg', '#1a1a2e');
+      document.documentElement.style.setProperty('--bg-secondary', '#16213e');
+      document.documentElement.style.setProperty('--surface', '#0f3460');
+      document.documentElement.style.setProperty('--text-primary', '#ffffff');
+      document.documentElement.style.setProperty('--text-secondary', '#a0a0b8');
+      document.documentElement.style.setProperty('--border', 'rgba(255,255,255,0.1)');
+    } else {
+      document.documentElement.style.setProperty('--bg', '#f5f4f7');
+      document.documentElement.style.setProperty('--bg-secondary', '#ffffff');
+      document.documentElement.style.setProperty('--surface', '#ffffff');
+      document.documentElement.style.setProperty('--text-primary', '#1a1a1a');
+      document.documentElement.style.setProperty('--text-secondary', '#6b6b6b');
+      document.documentElement.style.setProperty('--border', 'rgba(0,0,0,0.08)');
+    }
+    localStorage.setItem('penny_darkMode', darkMode);
+  }, [darkMode]);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+  
   const handleQuickAction = (action) => {
-    setModal({ open: true, type: action });
+    const titles = { transaction: 'Add Transaction', goal: 'New Goal', account: 'Add Account' };
+    setModal({ open: true, type: action, title: titles[action] || 'Add Item' });
   };
   
   const handleAddAccount = () => {
@@ -2696,7 +2839,11 @@ function App() {
   };
   
   const handleEditBudgets = () => {
-    showToast('Budget editing coming soon!', 'info');
+    setModal({ open: true, type: 'budget', title: 'Edit Budgets' });
+  };
+  
+  const handleEditCalendar = () => {
+    setModal({ open: true, type: 'calendar', title: 'Add Calendar Event' });
   };
   
   const closeModal = () => {
@@ -2716,6 +2863,13 @@ function App() {
       const newGoal = { ...data, id: Date.now(), current: 0, color: data.color || '#534AB7' };
       setGoals([...goals, newGoal]);
       showToast('Goal created!', 'success');
+    } else if (type === 'budget') {
+      setBudgets(data);
+      showToast('Budgets updated!', 'success');
+    } else if (type === 'calendar') {
+      const newEvent = { ...data, id: Date.now() };
+      setCalendarEvents([...calendarEvents, newEvent]);
+      showToast('Event added!', 'success');
     }
     closeModal();
   };
@@ -2728,6 +2882,10 @@ function App() {
         return <TransactionForm onSubmit={(data) => handleAddItem('transaction', data)} onCancel={closeModal} />;
       case 'goal':
         return <GoalForm onSubmit={(data) => handleAddItem('goal', data)} onCancel={closeModal} />;
+      case 'budget':
+        return <BudgetForm budgets={budgets} onSubmit={(data) => handleAddItem('budget', data)} onCancel={closeModal} />;
+      case 'calendar':
+        return <CalendarForm onSubmit={(data) => handleAddItem('calendar', data)} onCancel={closeModal} />;
       default:
         return null;
     }
@@ -2738,15 +2896,42 @@ function App() {
       case 'dashboard': return <Dashboard onQuickAction={handleQuickAction} onNavigate={setActiveView} />;
       case 'accounts': return <AccountsView accounts={accounts} onAddAccount={handleAddAccount} onShowToast={showToast} />;
       case 'transactions': return <TransactionsView transactions={transactions} onAddTransaction={handleAddTransaction} onShowToast={showToast} />;
-      case 'budgets': return <BudgetsView onEditBudgets={handleEditBudgets} onShowToast={showToast} />;
+      case 'budgets': return <BudgetsView budgets={budgets} onEditBudgets={handleEditBudgets} onShowToast={showToast} />;
       case 'goals': return <GoalsView goals={goals} onAddGoal={handleAddGoal} onShowToast={showToast} />;
-      case 'calendar': return <CalendarView />;
-      case 'reports': return <ReportsView />;
+      case 'calendar': return <CalendarView events={calendarEvents} onAddEvent={handleEditCalendar} />;
+      case 'reports': return <ReportsView onExport={() => handleExport()} onShowToast={showToast} />;
       case 'insights': return <InsightsView />;
       case 'achievements': return <AchievementsView />;
-      case 'settings': return <SettingsView onShowToast={showToast} />;
+      case 'settings': return <SettingsView 
+        darkMode={darkMode} 
+        onToggleDarkMode={() => setDarkMode(!darkMode)}
+        emailNotifications={emailNotifications}
+        onToggleEmail={() => setEmailNotifications(!emailNotifications)}
+        budgetAlerts={budgetAlerts}
+        onToggleBudget={() => setBudgetAlerts(!budgetAlerts)}
+        onShowToast={showToast} 
+      />;
       default: return <Dashboard onQuickAction={handleQuickAction} onNavigate={setActiveView} />;
     }
+  };
+  
+  const handleExport = () => {
+    const data = {
+      exported: new Date().toISOString(),
+      accounts,
+      transactions,
+      goals,
+      budgets,
+      calendarEvents
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'penny-export.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Data exported successfully!', 'success');
   };
   
   if (!user) {
@@ -2757,11 +2942,42 @@ function App() {
     <div className="app-layout">
       <Sidebar activeView={activeView} onNavigate={setActiveView} user={user} onLogout={handleLogout} />
       <main className="main-content">
-        <Header title={viewTitles[activeView]} />
+        <Header title={viewTitles[activeView]} notifications={notifications} onToggleNotifications={() => setShowNotifications(!showNotifications)} />
         <div className="page-content">
           {renderView()}
         </div>
       </main>
+      
+      {showNotifications && (
+        <div className="modal-overlay" onClick={() => setShowNotifications(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 400 }}>
+            <div className="modal-header">
+              <h2 className="modal-title">Notifications</h2>
+              <button className="modal-close" onClick={() => setShowNotifications(false)}><Icon name="x" /></button>
+            </div>
+            {notifications.length === 0 ? (
+              <div className="text-center text-secondary" style={{ padding: 24 }}>No notifications</div>
+            ) : (
+              notifications.map(n => (
+                <div key={n.id} className="flex gap-3" style={{ padding: '12px 0', borderBottom: '1px solid var(--border)', opacity: n.read ? 0.7 : 1 }}>
+                  <div className={`stat-icon stat-icon-${n.type === 'success' ? 'green' : n.type === 'warning' ? 'amber' : 'purple'}`} style={{ width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name={n.type === 'success' ? 'check' : n.type === 'warning' ? 'bell' : 'zap'} size={16} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div className="font-bold" style={{ fontSize: 14 }}>{n.title}</div>
+                    <div className="text-sm text-secondary">{n.desc}</div>
+                    <div className="text-xs text-tertiary">{n.time}</div>
+                  </div>
+                </div>
+              ))
+            )}
+            <button className="btn btn-outline mt-4" onClick={() => { setNotifications(notifications.map(n => ({ ...n, read: true }))); setShowNotifications(false); }} style={{ width: '100%' }}>
+              Mark all as read
+            </button>
+          </div>
+        </div>
+      )}
+      
       <Modal isOpen={modal.open} onClose={closeModal} title={modal.title}>
         {renderModalContent()}
       </Modal>
